@@ -195,39 +195,36 @@ class _RegisterScreenState extends State<RegisterScreen> {
         CircleAvatar(
           radius: 48,
           backgroundColor: AppColors.surface,
-          child: Icon(
-            AppConstants.avatarIcons[_selectedAvatarIndex],
-            size: 60,
-            color: AppColors.primary,
-          ),
+          backgroundImage: AssetImage(AppConstants.avatarImages[_selectedAvatarIndex]),
         ),
         const SizedBox(height: 12),
         SizedBox(
-          height: 60,
+          height: 70,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             shrinkWrap: true,
-            itemCount: AppConstants.avatarIcons.length,
+            itemCount: AppConstants.avatarImages.length,
             itemBuilder: (context, index) {
               final isSelected = _selectedAvatarIndex == index;
               return GestureDetector(
                 onTap: () => setState(() => _selectedAvatarIndex = index),
                 child: Container(
                   margin: const EdgeInsets.symmetric(horizontal: 6),
-                  width: 50,
-                  height: 50,
+                  width: 58,
+                  height: 58,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: isSelected ? AppColors.primary.withValues(alpha: 0.2) : AppColors.surface,
                     border: Border.all(
                       color: isSelected ? AppColors.primary : AppColors.transparent,
-                      width: 2,
+                      width: 2.5,
                     ),
                   ),
-                  child: Icon(
-                    AppConstants.avatarIcons[index],
-                    color: isSelected ? AppColors.primary : AppColors.iconColor,
-                    size: 28,
+                  child: ClipOval(
+                    child: Image.asset(
+                      AppConstants.avatarImages[index],
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
               );

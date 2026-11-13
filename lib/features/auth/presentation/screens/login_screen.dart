@@ -128,7 +128,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 16),
                     OutlinedButton.icon(
                       onPressed: state is AuthLoading ? null : _onGoogleLogin,
-                      icon: const Icon(Icons.g_mobiledata, color: AppColors.googleRed, size: 28),
+                      icon: Image.asset(AppAssets.googleIcon, width: 22, height: 22),
                       label: const Text(AppStrings.loginWithGoogle),
                     ),
                     const SizedBox(height: 32),
@@ -162,38 +162,25 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget _buildLogo() {
-    return Column(
-      children: [
-        Image.asset(
-          AppAssets.logo,
-          width: 100,
-          height: 100,
-          errorBuilder: (_, __, ___) => Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              shape: BoxShape.circle,
-              border: Border.all(color: AppColors.primary, width: 2),
-            ),
-            child: const Icon(
-              Icons.play_arrow_rounded,
-              color: AppColors.primary,
-              size: 48,
-            ),
-          ),
+    return Image.asset(
+      AppAssets.routeLogoText,
+      width: 160,
+      height: 80,
+      fit: BoxFit.contain,
+      errorBuilder: (_, __, ___) => Container(
+        width: 80,
+        height: 80,
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          shape: BoxShape.circle,
+          border: Border.all(color: AppColors.primary, width: 2),
         ),
-        const SizedBox(height: 8),
-        const Text(
-          'Route',
-          style: TextStyle(
-            color: AppColors.textPrimary,
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.5,
-          ),
+        child: const Icon(
+          Icons.play_arrow_rounded,
+          color: AppColors.primary,
+          size: 48,
         ),
-      ],
+      ),
     );
   }
 }

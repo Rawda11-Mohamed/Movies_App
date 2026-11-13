@@ -71,15 +71,6 @@ class _SplashScreenState extends State<SplashScreen>
               mainAxisSize: MainAxisSize.min,
               children: [
                 _buildLogo(),
-                const SizedBox(height: 20),
-                Text(
-                  'Route',
-                  style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                    color: AppColors.textPrimary,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 2,
-                  ),
-                ),
                 const SizedBox(height: 8),
                 Text(
                   'Supervised by Mohamed Nabil',
@@ -97,9 +88,10 @@ class _SplashScreenState extends State<SplashScreen>
 
   Widget _buildLogo() {
     return Image.asset(
-      AppAssets.logo,
-      width: 160,
-      height: 160,
+      AppAssets.routeLogoText,
+      width: 200,
+      height: 80,
+      fit: BoxFit.contain,
       errorBuilder: (_, __, ___) => Container(
         width: 100,
         height: 100,

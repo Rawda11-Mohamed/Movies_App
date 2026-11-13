@@ -51,7 +51,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         _customImagePath = avatarKey;
       } else {
         _selectedAvatarIndex = (int.tryParse(avatarKey.replaceAll('avatar_', '')) ?? 1) - 1;
-        _selectedAvatarIndex = _selectedAvatarIndex.clamp(0, AppConstants.avatarIcons.length - 1);
+        _selectedAvatarIndex = _selectedAvatarIndex.clamp(0, AppConstants.avatarImages.length - 1);
       }
     }
 
@@ -287,6 +287,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       }
     }
 
+    final previewImage = imageProvider ?? AssetImage(AppConstants.avatarImages[_selectedAvatarIndex]);
+
     return Column(
       children: [
         Stack(
@@ -297,14 +299,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               child: CircleAvatar(
                 radius: 52,
                 backgroundColor: AppColors.surface,
-                backgroundImage: imageProvider,
-                child: imageProvider == null
-                    ? Icon(
-                        AppConstants.avatarIcons[_selectedAvatarIndex],
-                        size: 70,
-                        color: AppColors.primary,
-                      )
-                    : null,
+                backgroundImage: previewImage,
               ),
             ),
             GestureDetector(
@@ -334,43 +329,44 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           ),
         ),
         const SizedBox(height: 12),
-        // Preset Avatars Grid
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 6,
-            crossAxisSpacing: 10,
-            mainAxisSpacing: 10,
-            childAspectRatio: 1,
-          ),
-          itemCount: AppConstants.avatarIcons.length,
-          itemBuilder: (context, index) {
-            final isSelected = _customImagePath == null && _selectedAvatarIndex == index;
-            return GestureDetector(
-              onTap: () {
-                setState(() {
-                  _customImagePath = null;
-                  _selectedAvatarIndex = index;
-                });
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: isSelected ? AppColors.primary.withValues(alpha: 0.2) : AppColors.surface,
-                  border: Border.all(
-                    color: isSelected ? AppColors.primary : Colors.transparent,
-                    width: 2,
+        // Preset Avatars Row
+        SizedBox(
+          height: 70,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            shrinkWrap: true,
+            itemCount: AppConstants.avatarImages.length,
+            itemBuilder: (context, index) {
+              final isSelected = _customImagePath == null && _selectedAvatarIndex == index;
+              return GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _customImagePath = null;
+                    _selectedAvatarIndex = index;
+                  });
+                },
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 6),
+                  width: 58,
+                  height: 58,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: isSelected ? AppColors.primary.withValues(alpha: 0.2) : AppColors.surface,
+                    border: Border.all(
+                      color: isSelected ? AppColors.primary : Colors.transparent,
+                      width: 2.5,
+                    ),
+                  ),
+                  child: ClipOval(
+                    child: Image.asset(
+                      AppConstants.avatarImages[index],
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
-                child: Icon(
-                  AppConstants.avatarIcons[index],
-                  color: isSelected ? AppColors.primary : AppColors.iconColor,
-                  size: 26,
-                ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
       ],
     );

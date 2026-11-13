@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:google_sign_in/google_sign_in.dart';
 import '../../../../core/errors/exceptions.dart';
 import '../models/user_model.dart';
@@ -100,21 +101,31 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<UserModel> signInWithGoogle() async {
     try {
-      final googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) {
-        throw const AuthException(message: 'Google sign-in was cancelled');
+      if (kIsWeb) {
+        final googleProvider = GoogleAuthProvider();
+        final userCredential = await _firebaseAuth.signInWithPopup(googleProvider);
+        final user = userCredential.user;
+        if (user == null) {
+          throw const AuthException(message: 'Google sign-in failed. No user returned.');
+        }
+        return UserModel.fromFirebaseUser(user);
+      } else {
+        final googleUser = await _googleSignIn.signIn();
+        if (googleUser == null) {
+          throw const AuthException(message: 'Google sign-in was cancelled');
+        }
+        final googleAuth = await googleUser.authentication;
+        final credential = GoogleAuthProvider.credential(
+          accessToken: googleAuth.accessToken,
+          idToken: googleAuth.idToken,
+        );
+        final userCredential = await _firebaseAuth.signInWithCredential(credential);
+        final user = userCredential.user;
+        if (user == null) {
+          throw const AuthException(message: 'Google sign-in failed. No user returned.');
+        }
+        return UserModel.fromFirebaseUser(user);
       }
-      final googleAuth = await googleUser.authentication;
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-      final userCredential = await _firebaseAuth.signInWithCredential(credential);
-      final user = userCredential.user;
-      if (user == null) {
-        throw const AuthException(message: 'Google sign-in failed. No user returned.');
-      }
-      return UserModel.fromFirebaseUser(user);
     } on FirebaseAuthException catch (e) {
       throw AuthException(message: _mapFirebaseError(e.code));
     } catch (e) {

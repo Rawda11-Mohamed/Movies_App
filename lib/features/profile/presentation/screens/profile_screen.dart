@@ -102,9 +102,19 @@ class _ProfileContent extends StatelessWidget {
   final ProfileEntity profile;
   const _ProfileContent({required this.profile});
 
-  IconData _getAvatarIcon(String key) {
-    final index = int.tryParse(key.replaceAll('avatar_', '')) ?? 1;
-    return AppConstants.avatarIcons[(index - 1).clamp(0, AppConstants.avatarIcons.length - 1)];
+  /// Returns an [ImageProvider] for the given avatar key.
+  /// - `avatar_1` / `avatar_2` / `avatar_3` → asset image
+  /// - http URL → NetworkImage
+  /// - local file path → FileImage
+  ImageProvider _resolveAvatar(String key) {
+    if (key.startsWith('http')) return NetworkImage(key);
+    if (key.startsWith('/') || key.contains(r':\')) {
+      final file = File(key);
+      if (file.existsSync()) return FileImage(file);
+    }
+    final index = (int.tryParse(key.replaceAll('avatar_', '')) ?? 1) - 1;
+    final safeIndex = index.clamp(0, AppConstants.avatarImages.length - 1);
+    return AssetImage(AppConstants.avatarImages[safeIndex]);
   }
 
   @override
@@ -126,15 +136,7 @@ class _ProfileContent extends StatelessWidget {
   }
 
   Widget _buildProfileHeader(BuildContext context) {
-    ImageProvider? imageProvider;
-    if (profile.avatarKey.startsWith('http')) {
-      imageProvider = NetworkImage(profile.avatarKey);
-    } else if (profile.avatarKey.startsWith('/') || profile.avatarKey.contains(r':\')) {
-      final file = File(profile.avatarKey);
-      if (file.existsSync()) {
-        imageProvider = FileImage(file);
-      }
-    }
+    final imageProvider = _resolveAvatar(profile.avatarKey);
 
     return Column(
       children: [
@@ -142,13 +144,6 @@ class _ProfileContent extends StatelessWidget {
           radius: 52,
           backgroundColor: AppColors.surface,
           backgroundImage: imageProvider,
-          child: imageProvider == null
-              ? Icon(
-                  _getAvatarIcon(profile.avatarKey),
-                  size: 70,
-                  color: AppColors.primary,
-                )
-              : null,
         ),
         const SizedBox(height: 12),
         Text(
