@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -8,8 +9,30 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/router/app_router.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _loadProfile();
+  }
+
+  void _loadProfile() {
+    final authState = context.read<AuthBloc>().state;
+    if (authState is Authenticated) {
+      context.read<ProfileBloc>().add(LoadProfile(
+            uid: authState.user.uid,
+            email: authState.user.email,
+            displayName: authState.user.displayName,
+          ));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +48,16 @@ class ProfileScreen extends StatelessWidget {
         ],
       ),
       body: BlocConsumer<ProfileBloc, ProfileState>(
-        listener: (context, state) {},
+        listener: (context, state) {
+          if (state is ProfileError) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: AppColors.error,
+              ),
+            );
+          }
+        },
         builder: (context, state) {
           if (state is ProfileLoading) {
             return const Center(
@@ -38,8 +70,26 @@ class ProfileScreen extends StatelessWidget {
                 : (state as ProfileUpdatedSuccess).profile;
             return _ProfileContent(profile: profile);
           }
+          if (state is ProfileError) {
+            return Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    state.message,
+                    style: const TextStyle(color: AppColors.error),
+                  ),
+                  const SizedBox(height: 12),
+                  ElevatedButton(
+                    onPressed: _loadProfile,
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            );
+          }
           return const Center(
-            child: Text('No profile data', style: TextStyle(color: AppColors.textSecondary)),
+            child: CircularProgressIndicator(color: AppColors.primary),
           );
         },
       ),
@@ -84,28 +134,43 @@ class _ProfileContent extends StatelessWidget {
   }
 
   Widget _buildProfileHeader(BuildContext context) {
+    ImageProvider? imageProvider;
+    if (profile.avatarKey.startsWith('http')) {
+      imageProvider = NetworkImage(profile.avatarKey);
+    } else if (profile.avatarKey.startsWith('/') || profile.avatarKey.contains(r':\')) {
+      final file = File(profile.avatarKey);
+      if (file.existsSync()) {
+        imageProvider = FileImage(file);
+      }
+    }
+
     return Column(
       children: [
         CircleAvatar(
           radius: 52,
           backgroundColor: AppColors.surface,
-          child: Icon(
-            _getAvatarIcon(profile.avatarKey),
-            size: 70,
-            color: AppColors.primary,
-          ),
+          backgroundImage: imageProvider,
+          child: imageProvider == null
+              ? Icon(
+                  _getAvatarIcon(profile.avatarKey),
+                  size: 70,
+                  color: AppColors.primary,
+                )
+              : null,
         ),
         const SizedBox(height: 12),
         Text(
-          profile.displayName,
+          profile.displayName.isNotEmpty ? profile.displayName : 'Movie Fan',
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+                fontWeight: FontWeight.bold,
+              ),
         ),
         const SizedBox(height: 4),
         Text(
           profile.email,
-          style: Theme.of(context).textTheme.bodyMedium,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: AppColors.textSecondary,
+              ),
         ),
       ],
     );

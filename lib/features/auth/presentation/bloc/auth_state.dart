@@ -39,12 +39,8 @@ class PasswordResetSent extends AuthState {
   const PasswordResetSent();
 }
 
-class ProfileUpdated extends AuthState {
-  final UserEntity user;
-  const ProfileUpdated({required this.user});
-
-  @override
-  List<Object> get props => [user];
+class ProfileUpdated extends Authenticated {
+  const ProfileUpdated({required super.user});
 }
 
 class AccountDeleted extends AuthState {

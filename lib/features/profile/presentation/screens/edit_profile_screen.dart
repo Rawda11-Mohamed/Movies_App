@@ -1,6 +1,8 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import '../bloc/profile_bloc.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../../core/constants/app_colors.dart';
@@ -20,6 +22,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late TextEditingController _nameController;
   late TextEditingController _phoneController;
   int _selectedAvatarIndex = 0;
+  String? _customImagePath;
+  String _email = '';
 
   static const List<IconData> _avatarIcons = [
     Icons.face,
@@ -34,15 +38,31 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   void initState() {
     super.initState();
     final profileState = context.read<ProfileBloc>().state;
+    final authState = context.read<AuthBloc>().state;
+
     String name = '';
     String phone = '';
+
+    if (authState is Authenticated) {
+      _email = authState.user.email;
+      name = authState.user.displayName;
+    }
+
     if (profileState is ProfileLoaded) {
-      name = profileState.profile.displayName;
+      if (profileState.profile.displayName.isNotEmpty) {
+        name = profileState.profile.displayName;
+      }
       phone = profileState.profile.phone;
       final avatarKey = profileState.profile.avatarKey;
-      _selectedAvatarIndex = (int.tryParse(avatarKey.replaceAll('avatar_', '')) ?? 1) - 1;
-      _selectedAvatarIndex = _selectedAvatarIndex.clamp(0, _avatarIcons.length - 1);
+
+      if (avatarKey.startsWith('/') || avatarKey.contains(r':\')) {
+        _customImagePath = avatarKey;
+      } else {
+        _selectedAvatarIndex = (int.tryParse(avatarKey.replaceAll('avatar_', '')) ?? 1) - 1;
+        _selectedAvatarIndex = _selectedAvatarIndex.clamp(0, _avatarIcons.length - 1);
+      }
     }
+
     _nameController = TextEditingController(text: name);
     _phoneController = TextEditingController(text: phone);
   }
@@ -54,16 +74,46 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.dispose();
   }
 
+  Future<void> _pickImage() async {
+    try {
+      final picker = ImagePicker();
+      final picked = await picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 800,
+        maxHeight: 800,
+        imageQuality: 85,
+      );
+      if (picked != null) {
+        setState(() {
+          _customImagePath = picked.path;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to pick image: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
+  }
+
   void _onUpdateData() {
     if (_formKey.currentState!.validate()) {
-      final avatarKey = 'avatar_${_selectedAvatarIndex + 1}';
+      final avatarValue = _customImagePath ?? 'avatar_${_selectedAvatarIndex + 1}';
+      final newDisplayName = _nameController.text.trim();
+
       context.read<ProfileBloc>().add(UpdateProfile(
-        displayName: _nameController.text.trim(),
+        displayName: newDisplayName,
         phone: _phoneController.text.trim(),
-        avatarKey: avatarKey,
+        avatarKey: avatarValue,
       ));
+
       context.read<AuthBloc>().add(UpdateProfileRequested(
-        displayName: _nameController.text.trim(),
+        displayName: newDisplayName,
+        photoURL: avatarValue,
       ));
     }
   }
@@ -103,7 +153,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               Navigator.pop(ctx);
               context.read<AuthBloc>().add(const DeleteAccountRequested());
               context.read<ProfileBloc>().add(const ClearProfile());
-              context.go(AppRoutes.login);
             },
             child: const Text('Delete', style: TextStyle(color: AppColors.error)),
           ),
@@ -143,6 +192,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           }
         },
         builder: (context, state) {
+          final isLoading = state is ProfileLoading;
+
           return SafeArea(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -150,23 +201,38 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 key: _formKey,
                 child: Column(
                   children: [
-                    _buildAvatarGrid(),
+                    _buildAvatarSection(),
                     const SizedBox(height: 24),
+                    // Display Authenticated User's Email (Read-Only)
+                    TextFormField(
+                      initialValue: _email,
+                      readOnly: true,
+                      style: const TextStyle(color: AppColors.textSecondary),
+                      decoration: const InputDecoration(
+                        labelText: AppStrings.email,
+                        prefixIcon: Icon(Icons.email_outlined, color: AppColors.iconColor),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    // Display & Update Display Name
                     TextFormField(
                       controller: _nameController,
                       style: const TextStyle(color: AppColors.textPrimary),
                       decoration: const InputDecoration(
+                        labelText: AppStrings.name,
                         hintText: AppStrings.name,
                         prefixIcon: Icon(Icons.person_outline, color: AppColors.iconColor),
                       ),
                       validator: Validators.validateName,
                     ),
                     const SizedBox(height: 14),
+                    // Phone Number
                     TextFormField(
                       controller: _phoneController,
                       keyboardType: TextInputType.phone,
                       style: const TextStyle(color: AppColors.textPrimary),
                       decoration: const InputDecoration(
+                        labelText: AppStrings.phoneNumber,
                         hintText: AppStrings.phoneNumber,
                         prefixIcon: Icon(Icons.phone_outlined, color: AppColors.iconColor),
                       ),
@@ -190,7 +256,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       child: const Text(AppStrings.deleteAccount),
                     ),
                     const SizedBox(height: 16),
-                    state is ProfileLoading
+                    isLoading
                         ? const CircularProgressIndicator(color: AppColors.primary)
                         : ElevatedButton(
                             onPressed: _onUpdateData,
@@ -207,33 +273,82 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  Widget _buildAvatarGrid() {
+  Widget _buildAvatarSection() {
+    ImageProvider? imageProvider;
+    if (_customImagePath != null) {
+      final file = File(_customImagePath!);
+      if (file.existsSync()) {
+        imageProvider = FileImage(file);
+      }
+    }
+
     return Column(
       children: [
-        CircleAvatar(
-          radius: 52,
-          backgroundColor: AppColors.surface,
-          child: Icon(
-            _avatarIcons[_selectedAvatarIndex],
-            size: 70,
-            color: AppColors.primary,
+        Stack(
+          alignment: Alignment.bottomRight,
+          children: [
+            GestureDetector(
+              onTap: _pickImage,
+              child: CircleAvatar(
+                radius: 52,
+                backgroundColor: AppColors.surface,
+                backgroundImage: imageProvider,
+                child: imageProvider == null
+                    ? Icon(
+                        _avatarIcons[_selectedAvatarIndex],
+                        size: 70,
+                        color: AppColors.primary,
+                      )
+                    : null,
+              ),
+            ),
+            GestureDetector(
+              onTap: _pickImage,
+              child: Container(
+                padding: const EdgeInsets.all(6),
+                decoration: const BoxDecoration(
+                  color: AppColors.primary,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.camera_alt_rounded,
+                  color: Colors.black,
+                  size: 20,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        TextButton.icon(
+          onPressed: _pickImage,
+          icon: const Icon(Icons.photo_library_outlined, size: 18, color: AppColors.primary),
+          label: const Text(
+            'Upload Custom Photo',
+            style: TextStyle(color: AppColors.primary, fontSize: 13),
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
+        // Preset Avatars Grid
         GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 4,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
+            crossAxisCount: 6,
+            crossAxisSpacing: 10,
+            mainAxisSpacing: 10,
             childAspectRatio: 1,
           ),
           itemCount: _avatarIcons.length,
           itemBuilder: (context, index) {
-            final isSelected = _selectedAvatarIndex == index;
+            final isSelected = _customImagePath == null && _selectedAvatarIndex == index;
             return GestureDetector(
-              onTap: () => setState(() => _selectedAvatarIndex = index),
+              onTap: () {
+                setState(() {
+                  _customImagePath = null;
+                  _selectedAvatarIndex = index;
+                });
+              },
               child: Container(
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
@@ -246,7 +361,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 child: Icon(
                   _avatarIcons[index],
                   color: isSelected ? AppColors.primary : AppColors.iconColor,
-                  size: 32,
+                  size: 26,
                 ),
               ),
             );
