@@ -11,6 +11,14 @@ class AppStarted extends AuthEvent {
   const AppStarted();
 }
 
+class AuthUserChanged extends AuthEvent {
+  final UserEntity? user;
+  const AuthUserChanged(this.user);
+
+  @override
+  List<Object?> get props => [user];
+}
+
 class SignInRequested extends AuthEvent {
   final String email;
   final String password;

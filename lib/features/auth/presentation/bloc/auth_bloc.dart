@@ -35,6 +35,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required this.sharedPrefsHelper,
   }) : super(const AuthInitial()) {
     on<AppStarted>(_onAppStarted);
+    on<AuthUserChanged>(_onAuthUserChanged);
     on<SignInRequested>(_onSignInRequested);
     on<SignUpRequested>(_onSignUpRequested);
     on<SignOutRequested>(_onSignOutRequested);
@@ -44,15 +45,26 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<DeleteAccountRequested>(_onDeleteAccountRequested);
   }
 
-  Future<void> _onAppStarted(AppStarted event, Emitter<AuthState> emit) async {
-    emit(const AuthLoading());
-    await emit.forEach<UserEntity?>(
-      authRepository.authStateChanges,
-      onData: (user) => user != null
-          ? Authenticated(user: user)
-          : const Unauthenticated(),
-      onError: (_, __) => const Unauthenticated(),
-    );
+  void _onAppStarted(AppStarted event, Emitter<AuthState> emit) {
+    _authSubscription?.cancel();
+    _authSubscription = authRepository.authStateChanges.listen((user) {
+      add(AuthUserChanged(user));
+    });
+
+    final currentUser = authRepository.getCurrentUser();
+    if (currentUser != null) {
+      emit(Authenticated(user: currentUser));
+    } else {
+      emit(const Unauthenticated());
+    }
+  }
+
+  void _onAuthUserChanged(AuthUserChanged event, Emitter<AuthState> emit) {
+    if (event.user != null) {
+      emit(Authenticated(user: event.user!));
+    } else {
+      emit(const Unauthenticated());
+    }
   }
 
   Future<void> _onSignInRequested(SignInRequested event, Emitter<AuthState> emit) async {

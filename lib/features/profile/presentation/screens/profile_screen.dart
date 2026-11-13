@@ -141,7 +141,6 @@ class _ProfileContent extends StatelessWidget {
               onPressed: () {
                 context.read<AuthBloc>().add(const SignOutRequested());
                 context.read<ProfileBloc>().add(const ClearProfile());
-                context.go(AppRoutes.login);
               },
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: AppColors.error),

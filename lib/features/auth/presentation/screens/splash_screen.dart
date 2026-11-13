@@ -5,6 +5,7 @@ import '../bloc/auth_bloc.dart';
 import '../../../../core/constants/app_assets.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/router/app_router.dart';
+import '../../../../core/utils/shared_prefs_helper.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -40,8 +41,12 @@ class _SplashScreenState extends State<SplashScreen>
     await Future.delayed(const Duration(seconds: 2));
     if (!mounted) return;
     final authState = context.read<AuthBloc>().state;
+    final prefs = await SharedPrefsHelper.getInstance();
+    if (!mounted) return;
     if (authState is Authenticated) {
       context.go(AppRoutes.home);
+    } else if (prefs.getHasSeenOnboarding()) {
+      context.go(AppRoutes.login);
     } else {
       context.go(AppRoutes.onboarding);
     }

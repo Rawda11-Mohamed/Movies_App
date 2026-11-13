@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/utils/shared_prefs_helper.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/auth/presentation/screens/splash_screen.dart';
 import '../../features/auth/presentation/screens/onboarding_screen.dart';
@@ -20,21 +22,68 @@ class AppRoutes {
   static const String editProfile = '/edit-profile';
 }
 
+/// Bridges BLoC Stream to GoRouter's Listenable for reactive navigation.
+class GoRouterRefreshStream extends ChangeNotifier {
+  late final StreamSubscription<dynamic> _subscription;
+
+  GoRouterRefreshStream(Stream<dynamic> stream) {
+    notifyListeners();
+    _subscription = stream.asBroadcastStream().listen(
+      (dynamic _) => notifyListeners(),
+    );
+  }
+
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
+  }
+}
+
 class AppRouter {
-  static GoRouter createRouter(AuthBloc authBloc) {
+  static GoRouter createRouter(
+    AuthBloc authBloc,
+    SharedPrefsHelper sharedPrefsHelper,
+  ) {
     return GoRouter(
       initialLocation: AppRoutes.splash,
+      refreshListenable: GoRouterRefreshStream(authBloc.stream),
       redirect: (BuildContext context, GoRouterState state) {
         final authState = authBloc.state;
-        final isAuthRoute = state.matchedLocation == AppRoutes.login ||
-            state.matchedLocation == AppRoutes.register ||
-            state.matchedLocation == AppRoutes.onboarding ||
-            state.matchedLocation == AppRoutes.forgotPassword ||
-            state.matchedLocation == AppRoutes.splash;
+        final currentLocation = state.matchedLocation;
 
-        if (authState is Authenticated && isAuthRoute) {
-          return AppRoutes.home;
+        final isSplash = currentLocation == AppRoutes.splash;
+        final isAuthRoute = currentLocation == AppRoutes.login ||
+            currentLocation == AppRoutes.register ||
+            currentLocation == AppRoutes.forgotPassword;
+        final isOnboarding = currentLocation == AppRoutes.onboarding;
+
+        // While on splash screen, let the splash animation run its course
+        if (isSplash) {
+          return null;
         }
+
+        // 1. Authenticated: redirect away from auth & onboarding screens to Home
+        if (authState is Authenticated) {
+          if (isAuthRoute || isOnboarding) {
+            return AppRoutes.home;
+          }
+          return null;
+        }
+
+        // 2. Unauthenticated: protect private routes (Home, Profile, etc.)
+        if (authState is Unauthenticated) {
+          final isProtectedRoute = currentLocation == AppRoutes.home ||
+              currentLocation == AppRoutes.profile ||
+              currentLocation == AppRoutes.editProfile;
+
+          if (isProtectedRoute) {
+            final hasSeenOnboarding = sharedPrefsHelper.getHasSeenOnboarding();
+            return hasSeenOnboarding ? AppRoutes.login : AppRoutes.onboarding;
+          }
+          return null;
+        }
+
         return null;
       },
       routes: [

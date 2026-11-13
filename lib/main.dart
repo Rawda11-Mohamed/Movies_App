@@ -68,7 +68,7 @@ void main() async {
   );
 
   // ── Router ─────────────────────────────────────────────────────
-  final router = AppRouter.createRouter(authBloc);
+  final router = AppRouter.createRouter(authBloc, sharedPrefsHelper);
 
   runApp(
     MultiBlocProvider(
