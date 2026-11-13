@@ -78,6 +78,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       (failure) async => emit(AuthError(message: failure.message)),
       (user) async {
         await sharedPrefsHelper.saveUserPhone(event.phone);
+        if (event.avatarKey != null) {
+          await sharedPrefsHelper.saveUserAvatar(event.avatarKey!);
+        }
         emit(Authenticated(user: user));
       },
     );

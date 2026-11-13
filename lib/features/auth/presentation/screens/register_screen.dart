@@ -51,6 +51,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         password: _passwordController.text,
         displayName: _nameController.text.trim(),
         phone: _phoneController.text.trim(),
+        avatarKey: 'avatar_${_selectedAvatarIndex + 1}',
       ));
     }
   }

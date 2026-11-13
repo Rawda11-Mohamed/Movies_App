@@ -152,21 +152,24 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       case 'user-not-found':
         return 'No user found with this email';
       case 'wrong-password':
-        return 'Incorrect password';
+      case 'invalid-credential':
+        return 'Invalid email or password';
       case 'email-already-in-use':
         return 'An account already exists with this email';
       case 'weak-password':
-        return 'Password is too weak';
+        return 'Password is too weak. Please use at least 6 characters';
       case 'invalid-email':
-        return 'Invalid email address';
+        return 'Invalid email address format';
       case 'user-disabled':
         return 'This account has been disabled';
       case 'too-many-requests':
         return 'Too many attempts. Please try again later';
       case 'network-request-failed':
-        return 'Network error. Check your connection';
+        return 'Network error. Please check your internet connection';
       case 'requires-recent-login':
         return 'Please log out and log in again to perform this action';
+      case 'channel-error':
+        return 'Please provide all required fields';
       default:
         return 'Authentication error: $code';
     }
