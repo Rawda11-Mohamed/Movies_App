@@ -8,8 +8,12 @@ import 'core/theme/app_theme.dart';
 import 'core/utils/shared_prefs_helper.dart';
 import 'features/auth/data/datasources/auth_remote_data_source.dart';
 import 'features/auth/data/repositories/auth_repository_impl.dart';
+import 'features/auth/domain/usecases/delete_account_usecase.dart';
 import 'features/auth/domain/usecases/forgot_password_usecase.dart';
+import 'features/auth/domain/usecases/get_auth_state_stream_usecase.dart';
+import 'features/auth/domain/usecases/get_current_user_usecase.dart';
 import 'features/auth/domain/usecases/sign_in_usecase.dart';
+import 'features/auth/domain/usecases/sign_in_with_google_usecase.dart';
 import 'features/auth/domain/usecases/sign_out_usecase.dart';
 import 'features/auth/domain/usecases/sign_up_usecase.dart';
 import 'features/auth/domain/usecases/update_profile_usecase.dart';
@@ -40,6 +44,10 @@ void main() async {
   final signOutUseCase = SignOutUseCase(authRepository);
   final forgotPasswordUseCase = ForgotPasswordUseCase(authRepository);
   final updateProfileUseCase = UpdateProfileUseCase(authRepository);
+  final getCurrentUserUseCase = GetCurrentUserUseCase(authRepository);
+  final getAuthStateStreamUseCase = GetAuthStateStreamUseCase(authRepository);
+  final signInWithGoogleUseCase = SignInWithGoogleUseCase(authRepository);
+  final deleteAccountUseCase = DeleteAccountUseCase(authRepository);
 
   final authBloc = AuthBloc(
     signInUseCase: signInUseCase,
@@ -47,7 +55,10 @@ void main() async {
     signOutUseCase: signOutUseCase,
     forgotPasswordUseCase: forgotPasswordUseCase,
     updateProfileUseCase: updateProfileUseCase,
-    authRepository: authRepository,
+    getCurrentUserUseCase: getCurrentUserUseCase,
+    getAuthStateStreamUseCase: getAuthStateStreamUseCase,
+    signInWithGoogleUseCase: signInWithGoogleUseCase,
+    deleteAccountUseCase: deleteAccountUseCase,
     sharedPrefsHelper: sharedPrefsHelper,
   )..add(const AppStarted());
 

@@ -72,7 +72,7 @@ class AppRouter {
         }
 
         // 2. Unauthenticated: protect private routes (Home, Profile, etc.)
-        if (authState is Unauthenticated) {
+        if (authState is Unauthenticated || authState is AuthError) {
           final isProtectedRoute = currentLocation == AppRoutes.home ||
               currentLocation == AppRoutes.profile ||
               currentLocation == AppRoutes.editProfile;
@@ -132,22 +132,42 @@ class _HomeShellPlaceholder extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF0D0D0D),
+      appBar: AppBar(
+        title: const Text('Movies'),
+        actions: [
+          IconButton(
+            tooltip: 'Profile',
+            icon: const Icon(Icons.person, color: Color(0xFFFFC107)),
+            onPressed: () => context.go(AppRoutes.profile),
+          ),
+        ],
+      ),
       body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: const [
-            Icon(Icons.movie_creation_outlined, color: Color(0xFFFFC107), size: 80),
-            SizedBox(height: 16),
-            Text(
-              'Home — Coming Soon',
-              style: TextStyle(color: Colors.white, fontSize: 20),
-            ),
-            SizedBox(height: 8),
-            Text(
-              'This screen is owned by another team member.',
-              style: TextStyle(color: Colors.grey, fontSize: 13),
-            ),
-          ],
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.movie_creation_outlined, color: Color(0xFFFFC107), size: 80),
+              const SizedBox(height: 16),
+              const Text(
+                'Home — Movies',
+                style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Movie discovery feature is developed by another team member.',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.grey, fontSize: 13),
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton.icon(
+                onPressed: () => context.go(AppRoutes.profile),
+                icon: const Icon(Icons.account_circle_outlined),
+                label: const Text('View User Profile'),
+              ),
+            ],
+          ),
         ),
       ),
     );

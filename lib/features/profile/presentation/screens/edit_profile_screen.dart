@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import '../bloc/profile_bloc.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/utils/validators.dart';
@@ -24,15 +25,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   int _selectedAvatarIndex = 0;
   String? _customImagePath;
   String _email = '';
-
-  static const List<IconData> _avatarIcons = [
-    Icons.face,
-    Icons.face_2,
-    Icons.face_3,
-    Icons.face_4,
-    Icons.face_5,
-    Icons.face_6,
-  ];
 
   @override
   void initState() {
@@ -59,7 +51,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         _customImagePath = avatarKey;
       } else {
         _selectedAvatarIndex = (int.tryParse(avatarKey.replaceAll('avatar_', '')) ?? 1) - 1;
-        _selectedAvatarIndex = _selectedAvatarIndex.clamp(0, _avatarIcons.length - 1);
+        _selectedAvatarIndex = _selectedAvatarIndex.clamp(0, AppConstants.avatarIcons.length - 1);
       }
     }
 
@@ -172,27 +164,39 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ),
         title: const Text(AppStrings.editProfile),
       ),
-      body: BlocConsumer<ProfileBloc, ProfileState>(
-        listener: (context, state) {
-          if (state is ProfileUpdatedSuccess) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text(AppStrings.profileUpdated),
-                backgroundColor: AppColors.success,
-              ),
-            );
-            context.go(AppRoutes.profile);
-          } else if (state is ProfileError) {
+      body: BlocListener<AuthBloc, AuthState>(
+        listener: (context, authState) {
+          if (authState is AuthError) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(state.message),
+                content: Text(authState.message),
                 backgroundColor: AppColors.error,
               ),
             );
           }
         },
-        builder: (context, state) {
-          final isLoading = state is ProfileLoading;
+        child: BlocConsumer<ProfileBloc, ProfileState>(
+          listener: (context, state) {
+            if (state is ProfileUpdatedSuccess) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text(AppStrings.profileUpdated),
+                  backgroundColor: AppColors.success,
+                ),
+              );
+              context.go(AppRoutes.profile);
+            } else if (state is ProfileError) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(state.message),
+                  backgroundColor: AppColors.error,
+                ),
+              );
+            }
+          },
+          builder: (context, state) {
+            final isAuthLoading = context.watch<AuthBloc>().state is AuthLoading;
+            final isLoading = state is ProfileLoading || isAuthLoading;
 
           return SafeArea(
             child: SingleChildScrollView(
@@ -270,7 +274,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           );
         },
       ),
-    );
+    ),
+  );
   }
 
   Widget _buildAvatarSection() {
@@ -295,7 +300,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 backgroundImage: imageProvider,
                 child: imageProvider == null
                     ? Icon(
-                        _avatarIcons[_selectedAvatarIndex],
+                        AppConstants.avatarIcons[_selectedAvatarIndex],
                         size: 70,
                         color: AppColors.primary,
                       )
@@ -339,7 +344,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             mainAxisSpacing: 10,
             childAspectRatio: 1,
           ),
-          itemCount: _avatarIcons.length,
+          itemCount: AppConstants.avatarIcons.length,
           itemBuilder: (context, index) {
             final isSelected = _customImagePath == null && _selectedAvatarIndex == index;
             return GestureDetector(
@@ -359,7 +364,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   ),
                 ),
                 child: Icon(
-                  _avatarIcons[index],
+                  AppConstants.avatarIcons[index],
                   color: isSelected ? AppColors.primary : AppColors.iconColor,
                   size: 26,
                 ),

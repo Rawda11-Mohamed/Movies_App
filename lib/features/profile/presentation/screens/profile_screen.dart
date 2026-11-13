@@ -6,6 +6,7 @@ import '../bloc/profile_bloc.dart';
 import '../../domain/entities/profile_entity.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/router/app_router.dart';
 
@@ -101,18 +102,9 @@ class _ProfileContent extends StatelessWidget {
   final ProfileEntity profile;
   const _ProfileContent({required this.profile});
 
-  static const List<IconData> _avatarIcons = [
-    Icons.face,
-    Icons.face_2,
-    Icons.face_3,
-    Icons.face_4,
-    Icons.face_5,
-    Icons.face_6,
-  ];
-
   IconData _getAvatarIcon(String key) {
     final index = int.tryParse(key.replaceAll('avatar_', '')) ?? 1;
-    return _avatarIcons[(index - 1).clamp(0, _avatarIcons.length - 1)];
+    return AppConstants.avatarIcons[(index - 1).clamp(0, AppConstants.avatarIcons.length - 1)];
   }
 
   @override

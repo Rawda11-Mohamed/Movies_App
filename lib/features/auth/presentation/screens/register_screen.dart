@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../bloc/auth_bloc.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/utils/validators.dart';
@@ -24,15 +25,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool _obscurePassword = true;
   bool _obscureConfirm = true;
   int _selectedAvatarIndex = 0;
-
-  final List<IconData> _avatarIcons = [
-    Icons.face,
-    Icons.face_2,
-    Icons.face_3,
-    Icons.face_4,
-    Icons.face_5,
-    Icons.face_6,
-  ];
 
   @override
   void dispose() {
@@ -204,7 +196,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           radius: 48,
           backgroundColor: AppColors.surface,
           child: Icon(
-            _avatarIcons[_selectedAvatarIndex],
+            AppConstants.avatarIcons[_selectedAvatarIndex],
             size: 60,
             color: AppColors.primary,
           ),
@@ -215,7 +207,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             shrinkWrap: true,
-            itemCount: _avatarIcons.length,
+            itemCount: AppConstants.avatarIcons.length,
             itemBuilder: (context, index) {
               final isSelected = _selectedAvatarIndex == index;
               return GestureDetector(
@@ -233,7 +225,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
                   child: Icon(
-                    _avatarIcons[index],
+                    AppConstants.avatarIcons[index],
                     color: isSelected ? AppColors.primary : AppColors.iconColor,
                     size: 28,
                   ),

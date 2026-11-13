@@ -32,7 +32,11 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         email: email,
         password: password,
       );
-      return UserModel.fromFirebaseUser(credential.user!);
+      final user = credential.user;
+      if (user == null) {
+        throw const AuthException(message: 'Sign in failed. No user returned.');
+      }
+      return UserModel.fromFirebaseUser(user);
     } on FirebaseAuthException catch (e) {
       throw AuthException(message: _mapFirebaseError(e.code));
     } catch (e) {
@@ -51,9 +55,14 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         email: email,
         password: password,
       );
-      await credential.user!.updateDisplayName(displayName);
-      await credential.user!.reload();
-      return UserModel.fromFirebaseUser(_firebaseAuth.currentUser!);
+      final user = credential.user;
+      if (user == null) {
+        throw const AuthException(message: 'Registration failed. No user returned.');
+      }
+      await user.updateDisplayName(displayName);
+      await user.reload();
+      final updatedUser = _firebaseAuth.currentUser ?? user;
+      return UserModel.fromFirebaseUser(updatedUser);
     } on FirebaseAuthException catch (e) {
       throw AuthException(message: _mapFirebaseError(e.code));
     } catch (e) {
@@ -64,10 +73,14 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<void> signOut() async {
     try {
-      await Future.wait([
-        _firebaseAuth.signOut(),
-        _googleSignIn.signOut(),
-      ]);
+      await _firebaseAuth.signOut();
+      try {
+        if (await _googleSignIn.isSignedIn()) {
+          await _googleSignIn.signOut();
+        }
+      } catch (_) {
+        // Silently ignore Google sign-out failures if not logged in with Google
+      }
     } catch (e) {
       throw AuthException(message: e.toString());
     }
@@ -97,7 +110,11 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         idToken: googleAuth.idToken,
       );
       final userCredential = await _firebaseAuth.signInWithCredential(credential);
-      return UserModel.fromFirebaseUser(userCredential.user!);
+      final user = userCredential.user;
+      if (user == null) {
+        throw const AuthException(message: 'Google sign-in failed. No user returned.');
+      }
+      return UserModel.fromFirebaseUser(user);
     } on FirebaseAuthException catch (e) {
       throw AuthException(message: _mapFirebaseError(e.code));
     } catch (e) {

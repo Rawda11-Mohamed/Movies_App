@@ -4,11 +4,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../../../../core/utils/shared_prefs_helper.dart';
 import '../../domain/entities/user_entity.dart';
-import '../../domain/repositories/auth_repository.dart';
-import '../../domain/usecases/sign_in_usecase.dart';
-import '../../domain/usecases/sign_up_usecase.dart';
-import '../../domain/usecases/sign_out_usecase.dart';
+import '../../domain/usecases/delete_account_usecase.dart';
 import '../../domain/usecases/forgot_password_usecase.dart';
+import '../../domain/usecases/get_auth_state_stream_usecase.dart';
+import '../../domain/usecases/get_current_user_usecase.dart';
+import '../../domain/usecases/sign_in_usecase.dart';
+import '../../domain/usecases/sign_in_with_google_usecase.dart';
+import '../../domain/usecases/sign_out_usecase.dart';
+import '../../domain/usecases/sign_up_usecase.dart';
 import '../../domain/usecases/update_profile_usecase.dart';
 
 part 'auth_event.dart';
@@ -20,7 +23,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final SignOutUseCase signOutUseCase;
   final ForgotPasswordUseCase forgotPasswordUseCase;
   final UpdateProfileUseCase updateProfileUseCase;
-  final AuthRepository authRepository;
+  final GetCurrentUserUseCase getCurrentUserUseCase;
+  final GetAuthStateStreamUseCase getAuthStateStreamUseCase;
+  final SignInWithGoogleUseCase signInWithGoogleUseCase;
+  final DeleteAccountUseCase deleteAccountUseCase;
   final SharedPrefsHelper sharedPrefsHelper;
 
   StreamSubscription<UserEntity?>? _authSubscription;
@@ -31,7 +37,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required this.signOutUseCase,
     required this.forgotPasswordUseCase,
     required this.updateProfileUseCase,
-    required this.authRepository,
+    required this.getCurrentUserUseCase,
+    required this.getAuthStateStreamUseCase,
+    required this.signInWithGoogleUseCase,
+    required this.deleteAccountUseCase,
     required this.sharedPrefsHelper,
   }) : super(const AuthInitial()) {
     on<AppStarted>(_onAppStarted);
@@ -45,18 +54,19 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<DeleteAccountRequested>(_onDeleteAccountRequested);
   }
 
-  void _onAppStarted(AppStarted event, Emitter<AuthState> emit) {
+  Future<void> _onAppStarted(AppStarted event, Emitter<AuthState> emit) async {
     _authSubscription?.cancel();
-    _authSubscription = authRepository.authStateChanges.listen((user) {
+    _authSubscription = getAuthStateStreamUseCase().listen((user) {
       add(AuthUserChanged(user));
     });
 
-    final currentUser = authRepository.getCurrentUser();
-    if (currentUser != null) {
-      emit(Authenticated(user: currentUser));
-    } else {
-      emit(const Unauthenticated());
-    }
+    final result = await getCurrentUserUseCase(const NoParams());
+    result.fold(
+      (_) => emit(const Unauthenticated()),
+      (user) => user != null
+          ? emit(Authenticated(user: user))
+          : emit(const Unauthenticated()),
+    );
   }
 
   void _onAuthUserChanged(AuthUserChanged event, Emitter<AuthState> emit) {
@@ -124,7 +134,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     emit(const AuthLoading());
-    final result = await authRepository.signInWithGoogle();
+    final result = await signInWithGoogleUseCase(const NoParams());
     result.fold(
       (failure) => emit(AuthError(message: failure.message)),
       (user) => emit(Authenticated(user: user)),
@@ -151,10 +161,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     emit(const AuthLoading());
-    final result = await authRepository.deleteAccount();
+    final result = await deleteAccountUseCase(const NoParams());
     result.fold(
       (failure) => emit(AuthError(message: failure.message)),
-      (_) => emit(const AccountDeleted()),
+      (_) => emit(const Unauthenticated()),
     );
   }
 
