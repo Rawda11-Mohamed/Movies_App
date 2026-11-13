@@ -187,6 +187,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         return 'Please log out and log in again to perform this action';
       case 'channel-error':
         return 'Please provide all required fields';
+      case 'configuration-not-found':
+      case 'operation-not-allowed':
+        return 'Email/Password sign-in is not enabled in Firebase Console. Please enable it in Authentication > Sign-in method.';
       default:
         return 'Authentication error: $code';
     }
