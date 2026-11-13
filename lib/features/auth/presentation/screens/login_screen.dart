@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../bloc/auth_bloc.dart';
+import '../../../../core/constants/app_assets.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/router/app_router.dart';
@@ -165,18 +166,23 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget _buildLogo() {
     return Column(
       children: [
-        Container(
-          width: 80,
-          height: 80,
-          decoration: BoxDecoration(
-            color: AppColors.surface,
-            shape: BoxShape.circle,
-            border: Border.all(color: AppColors.primary, width: 2),
-          ),
-          child: const Icon(
-            Icons.play_arrow_rounded,
-            color: AppColors.primary,
-            size: 48,
+        Image.asset(
+          AppAssets.logo,
+          width: 100,
+          height: 100,
+          errorBuilder: (_, __, ___) => Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              shape: BoxShape.circle,
+              border: Border.all(color: AppColors.primary, width: 2),
+            ),
+            child: const Icon(
+              Icons.play_arrow_rounded,
+              color: AppColors.primary,
+              size: 48,
+            ),
           ),
         ),
         const SizedBox(height: 8),

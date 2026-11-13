@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../bloc/auth_bloc.dart';
+import '../../../../core/constants/app_assets.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/router/app_router.dart';
 
@@ -90,18 +91,19 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Widget _buildLogo() {
-    return Container(
-      width: 100,
-      height: 100,
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        shape: BoxShape.circle,
-        border: Border.all(color: AppColors.primary, width: 2),
-      ),
-      child: const Icon(
-        Icons.play_arrow_rounded,
-        color: AppColors.primary,
-        size: 60,
+    return Image.asset(
+      AppAssets.logo,
+      width: 160,
+      height: 160,
+      errorBuilder: (_, __, ___) => Container(
+        width: 100,
+        height: 100,
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          shape: BoxShape.circle,
+          border: Border.all(color: AppColors.primary, width: 2),
+        ),
+        child: const Icon(Icons.play_arrow_rounded, color: AppColors.primary, size: 60),
       ),
     );
   }
