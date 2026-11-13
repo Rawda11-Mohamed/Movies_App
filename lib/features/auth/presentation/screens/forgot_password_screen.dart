@@ -27,8 +27,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   void _onVerifyEmail() {
     if (_formKey.currentState!.validate()) {
       context.read<AuthBloc>().add(
-        ForgotPasswordRequested(email: _emailController.text.trim()),
-      );
+            ForgotPasswordRequested(email: _emailController.text.trim()),
+          );
     }
   }
 
@@ -38,11 +38,20 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.background,
+        elevation: 0,
+        centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: AppColors.textPrimary),
+          icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.primary),
           onPressed: () => context.go(AppRoutes.login),
         ),
-        title: const Text(AppStrings.forgotPassword),
+        title: const Text(
+          'Forget Password',
+          style: TextStyle(
+            color: AppColors.textPrimary,
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
       ),
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
@@ -64,55 +73,98 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           }
         },
         builder: (context, state) {
+          final isLoading = state is AuthLoading;
+
           return SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               child: Form(
                 key: _formKey,
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 20),
+                    // Illustration graphic matching design mockup
                     Center(
                       child: Container(
-                        width: 100,
-                        height: 100,
+                        width: 220,
+                        height: 200,
+                        padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: AppColors.surface,
-                          borderRadius: BorderRadius.circular(16),
+                          color: const Color(0xFFFFF3CD),
+                          borderRadius: BorderRadius.circular(24),
                         ),
-                        child: const Icon(
-                          Icons.lock_reset_outlined,
-                          color: AppColors.primary,
-                          size: 60,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: const BoxDecoration(
+                                color: Colors.black,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.lock_reset_rounded,
+                                color: AppColors.primary,
+                                size: 48,
+                              ),
+                            ),
+                            const SizedBox(height: 14),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: Colors.black12),
+                              ),
+                              child: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.password_rounded,
+                                    color: Colors.black54,
+                                    size: 18,
+                                  ),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    '••••••••',
+                                    style: TextStyle(
+                                      color: Colors.black87,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 2,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
-                    const SizedBox(height: 32),
-                    Text(
-                      'Reset Your Password',
-                      style: Theme.of(context).textTheme.headlineMedium,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Enter your email address and we\'ll send you a link to reset your password.',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 36),
                     TextFormField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
+                      enabled: !isLoading,
                       style: const TextStyle(color: AppColors.textPrimary),
                       decoration: const InputDecoration(
                         hintText: AppStrings.email,
-                        prefixIcon: Icon(Icons.email_outlined, color: AppColors.iconColor),
+                        prefixIcon: Icon(
+                          Icons.email_outlined,
+                          color: AppColors.iconColor,
+                        ),
                       ),
                       validator: Validators.validateEmail,
                     ),
                     const SizedBox(height: 28),
-                    state is AuthLoading
+                    isLoading
                         ? const Center(
-                            child: CircularProgressIndicator(color: AppColors.primary),
+                            child: CircularProgressIndicator(
+                              color: AppColors.primary,
+                            ),
                           )
                         : ElevatedButton(
                             onPressed: _onVerifyEmail,
