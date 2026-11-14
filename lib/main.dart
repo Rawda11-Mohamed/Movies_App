@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 // import 'package:firebase_core/firebase_core.dart'; // Uncomment after: flutterfire configure
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'core/utils/shared_prefs_helper.dart';
@@ -13,11 +12,6 @@ import 'features/auth/domain/usecases/sign_out_usecase.dart';
 import 'features/auth/domain/usecases/sign_up_usecase.dart';
 import 'features/auth/domain/usecases/update_profile_usecase.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
-import 'features/profile/data/datasources/profile_local_data_source.dart';
-import 'features/profile/data/repositories/profile_repository_impl.dart';
-import 'features/profile/domain/usecases/get_profile_usecase.dart';
-import 'features/profile/domain/usecases/update_profile_usecase.dart' as profile_uc;
-import 'features/profile/presentation/bloc/profile_bloc.dart';
 // TODO: Import firebase_options.dart after running flutterfire configure
 // import 'firebase_options.dart';
 
@@ -28,8 +22,7 @@ void main() async {
   // TODO: Uncomment after running: flutterfire configure
   // await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  // Initialize SharedPreferences
-  final sharedPreferences = await SharedPreferences.getInstance();
+  // Initialize SharedPreferences helper
   final sharedPrefsHelper = await SharedPrefsHelper.getInstance();
 
   // ── Auth dependencies ──────────────────────────────────────────
@@ -52,22 +45,6 @@ void main() async {
     sharedPrefsHelper: sharedPrefsHelper,
   )..add(const AppStarted());
 
-  // ── Profile dependencies ───────────────────────────────────────
-  final profileLocalDataSource = ProfileLocalDataSourceImpl(
-    sharedPreferences: sharedPreferences,
-  );
-  final profileRepository = ProfileRepositoryImpl(
-    localDataSource: profileLocalDataSource,
-  );
-  final getProfileUseCase = GetProfileUseCase(profileRepository);
-  final updateProfileUC = profile_uc.UpdateProfileUseCase(profileRepository);
-
-  final profileBloc = ProfileBloc(
-    getProfileUseCase: getProfileUseCase,
-    updateProfileUseCase: updateProfileUC,
-    sharedPrefsHelper: sharedPrefsHelper,
-  );
-
   // ── Router ─────────────────────────────────────────────────────
   final router = AppRouter.createRouter(authBloc);
 
@@ -75,7 +52,6 @@ void main() async {
     MultiBlocProvider(
       providers: [
         BlocProvider<AuthBloc>.value(value: authBloc),
-        BlocProvider<ProfileBloc>.value(value: profileBloc),
         // TODO: Teammates add their blocs here as separate BlocProvider entries
       ],
       child: MoviesApp(router: router),

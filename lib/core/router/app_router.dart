@@ -6,8 +6,6 @@ import '../../features/auth/presentation/screens/onboarding_screen.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/register_screen.dart';
 import '../../features/auth/presentation/screens/forgot_password_screen.dart';
-import '../../features/profile/presentation/screens/profile_screen.dart';
-import '../../features/profile/presentation/screens/edit_profile_screen.dart';
 
 class AppRoutes {
   static const String splash = '/';
@@ -64,13 +62,29 @@ class AppRouter {
         ),
         GoRoute(
           path: AppRoutes.profile,
-          builder: (context, state) => const ProfileScreen(),
+          builder: (context, state) => const _ProfilePlaceholder(),
         ),
         GoRoute(
           path: AppRoutes.editProfile,
-          builder: (context, state) => const EditProfileScreen(),
+          builder: (context, state) => const _ProfilePlaceholder(),
         ),
       ],
+    );
+  }
+}
+
+/// Placeholder for profile screen — will be integrated by the profile feature teammate.
+class _ProfilePlaceholder extends StatelessWidget {
+  const _ProfilePlaceholder();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF0D0D0D),
+      appBar: AppBar(title: const Text('Profile')),
+      body: const Center(
+        child: Text('Profile feature placeholder', style: TextStyle(color: Colors.white)),
+      ),
     );
   }
 }
