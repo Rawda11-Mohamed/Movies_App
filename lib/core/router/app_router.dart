@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/utils/shared_prefs_helper.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
@@ -8,8 +9,6 @@ import '../../features/auth/presentation/screens/onboarding_screen.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/register_screen.dart';
 import '../../features/auth/presentation/screens/forgot_password_screen.dart';
-import '../../features/profile/presentation/screens/profile_screen.dart';
-import '../../features/profile/presentation/screens/edit_profile_screen.dart';
 
 class AppRoutes {
   static const String splash = '/';
@@ -113,11 +112,11 @@ class AppRouter {
         ),
         GoRoute(
           path: AppRoutes.profile,
-          builder: (context, state) => const ProfileScreen(),
+          builder: (context, state) => const _ProfilePlaceholder(),
         ),
         GoRoute(
           path: AppRoutes.editProfile,
-          builder: (context, state) => const EditProfileScreen(),
+          builder: (context, state) => const _ProfilePlaceholder(),
         ),
       ],
     );
@@ -165,6 +164,53 @@ class _HomeShellPlaceholder extends StatelessWidget {
                 onPressed: () => context.go(AppRoutes.profile),
                 icon: const Icon(Icons.account_circle_outlined),
                 label: const Text('View User Profile'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Placeholder for profile screen — will be integrated by the profile feature branch/teammate.
+class _ProfilePlaceholder extends StatelessWidget {
+  const _ProfilePlaceholder();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF0D0D0D),
+      appBar: AppBar(
+        title: const Text('Profile'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+          onPressed: () => context.go(AppRoutes.home),
+        ),
+      ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.account_circle, color: Color(0xFFFFC107), size: 80),
+              const SizedBox(height: 16),
+              const Text(
+                'User Profile',
+                style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Profile feature is developed on the profile branch.',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.grey, fontSize: 13),
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton.icon(
+                onPressed: () => context.read<AuthBloc>().add(const SignOutRequested()),
+                icon: const Icon(Icons.logout),
+                label: const Text('Logout'),
               ),
             ],
           ),
