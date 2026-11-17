@@ -7,6 +7,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/utils/validators.dart';
+import '../../../../core/widgets/shared_widgets.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -37,22 +38,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(
-        backgroundColor: AppColors.background,
-        elevation: 0,
-        centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.primary),
-          onPressed: () => context.go(AppRoutes.login),
-        ),
-        title: const Text(
-          'Forget Password',
-          style: TextStyle(
-            color: AppColors.textPrimary,
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+      appBar: CustomAppBar(
+        title: AppStrings.forgotPassword,
+        onBack: () => context.go(AppRoutes.login),
       ),
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
@@ -85,7 +73,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     const SizedBox(height: 20),
-                    // Forgot password illustration
                     Center(
                       child: Image.asset(
                         AppAssets.forgotPasswordIllustration,
@@ -95,31 +82,23 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       ),
                     ),
                     const SizedBox(height: 36),
-                    TextFormField(
+                    CustomTextField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
                       enabled: !isLoading,
-                      style: const TextStyle(color: AppColors.textPrimary),
-                      decoration: const InputDecoration(
-                        hintText: AppStrings.email,
-                        prefixIcon: Icon(
-                          Icons.email_outlined,
-                          color: AppColors.iconColor,
-                        ),
+                      hintText: AppStrings.email,
+                      prefixIcon: const Icon(
+                        Icons.email_outlined,
+                        color: AppColors.iconColor,
                       ),
                       validator: Validators.validateEmail,
                     ),
                     const SizedBox(height: 28),
-                    isLoading
-                        ? const Center(
-                            child: CircularProgressIndicator(
-                              color: AppColors.primary,
-                            ),
-                          )
-                        : ElevatedButton(
-                            onPressed: _onVerifyEmail,
-                            child: const Text(AppStrings.verifyEmail),
-                          ),
+                    CustomElevatedButton(
+                      title: AppStrings.verifyEmail,
+                      isLoading: isLoading,
+                      onPressed: _onVerifyEmail,
+                    ),
                   ],
                 ),
               ),

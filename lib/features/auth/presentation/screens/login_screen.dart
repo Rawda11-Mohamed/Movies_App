@@ -7,6 +7,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/utils/validators.dart';
+import '../../../../core/widgets/shared_widgets.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -57,6 +58,8 @@ class _LoginScreenState extends State<LoginScreen> {
           }
         },
         builder: (context, state) {
+          final isLoading = state is AuthLoading;
+
           return SafeArea(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
@@ -66,33 +69,27 @@ class _LoginScreenState extends State<LoginScreen> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     const SizedBox(height: 40),
-                    _buildLogo(),
+                    const AppLogoWidget(),
                     const SizedBox(height: 48),
-                    TextFormField(
+                    CustomTextField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
-                      style: const TextStyle(color: AppColors.textPrimary),
-                      decoration: const InputDecoration(
-                        hintText: AppStrings.email,
-                        prefixIcon: Icon(Icons.email_outlined, color: AppColors.iconColor),
-                      ),
+                      hintText: AppStrings.email,
+                      prefixIcon: const Icon(Icons.email_outlined, color: AppColors.iconColor),
                       validator: Validators.validateEmail,
                     ),
                     const SizedBox(height: 16),
-                    TextFormField(
+                    CustomTextField(
                       controller: _passwordController,
                       obscureText: _obscurePassword,
-                      style: const TextStyle(color: AppColors.textPrimary),
-                      decoration: InputDecoration(
-                        hintText: AppStrings.password,
-                        prefixIcon: const Icon(Icons.lock_outline, color: AppColors.iconColor),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                            color: AppColors.iconColor,
-                          ),
-                          onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                      hintText: AppStrings.password,
+                      prefixIcon: const Icon(Icons.lock_outline, color: AppColors.iconColor),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                          color: AppColors.iconColor,
                         ),
+                        onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                       ),
                       validator: Validators.validatePassword,
                     ),
@@ -108,28 +105,18 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    state is AuthLoading
-                        ? const CircularProgressIndicator(color: AppColors.primary)
-                        : ElevatedButton(
-                            onPressed: _onLogin,
-                            child: const Text(AppStrings.login),
-                          ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: const [
-                        Expanded(child: Divider(color: AppColors.divider)),
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 12),
-                          child: Text('OR', style: TextStyle(color: AppColors.textHint, fontSize: 12)),
-                        ),
-                        Expanded(child: Divider(color: AppColors.divider)),
-                      ],
+                    CustomElevatedButton(
+                      title: AppStrings.login,
+                      isLoading: isLoading,
+                      onPressed: _onLogin,
                     ),
-                    const SizedBox(height: 16),
-                    OutlinedButton.icon(
-                      onPressed: state is AuthLoading ? null : _onGoogleLogin,
+                    const SizedBox(height: 20),
+                    const OrDivider(),
+                    const SizedBox(height: 20),
+                    CustomOutlinedButton(
+                      title: AppStrings.loginWithGoogle,
                       icon: Image.asset(AppAssets.googleIcon, width: 22, height: 22),
-                      label: const Text(AppStrings.loginWithGoogle),
+                      onPressed: isLoading ? null : _onGoogleLogin,
                     ),
                     const SizedBox(height: 32),
                     Row(
@@ -157,29 +144,6 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           );
         },
-      ),
-    );
-  }
-
-  Widget _buildLogo() {
-    return Image.asset(
-      AppAssets.routeLogoText,
-      width: 160,
-      height: 80,
-      fit: BoxFit.contain,
-      errorBuilder: (_, __, ___) => Container(
-        width: 80,
-        height: 80,
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          shape: BoxShape.circle,
-          border: Border.all(color: AppColors.primary, width: 2),
-        ),
-        child: const Icon(
-          Icons.play_arrow_rounded,
-          color: AppColors.primary,
-          size: 48,
-        ),
       ),
     );
   }

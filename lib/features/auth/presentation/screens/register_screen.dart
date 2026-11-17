@@ -7,6 +7,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/utils/validators.dart';
+import '../../../../core/widgets/shared_widgets.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -52,13 +53,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(
-        backgroundColor: AppColors.background,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: AppColors.textPrimary),
-          onPressed: () => context.go(AppRoutes.login),
-        ),
-        title: const Text(AppStrings.register),
+      appBar: CustomAppBar(
+        title: AppStrings.register,
+        onBack: () => context.go(AppRoutes.login),
       ),
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
@@ -72,6 +69,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
           }
         },
         builder: (context, state) {
+          final isLoading = state is AuthLoading;
+
           return SafeArea(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -81,59 +80,47 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   children: [
                     _buildAvatarSelector(),
                     const SizedBox(height: 24),
-                    TextFormField(
+                    CustomTextField(
                       controller: _nameController,
-                      style: const TextStyle(color: AppColors.textPrimary),
-                      decoration: const InputDecoration(
-                        hintText: AppStrings.name,
-                        prefixIcon: Icon(Icons.person_outline, color: AppColors.iconColor),
-                      ),
+                      hintText: AppStrings.name,
+                      prefixIcon: const Icon(Icons.person_outline, color: AppColors.iconColor),
                       validator: Validators.validateName,
                     ),
                     const SizedBox(height: 14),
-                    TextFormField(
+                    CustomTextField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
-                      style: const TextStyle(color: AppColors.textPrimary),
-                      decoration: const InputDecoration(
-                        hintText: AppStrings.email,
-                        prefixIcon: Icon(Icons.email_outlined, color: AppColors.iconColor),
-                      ),
+                      hintText: AppStrings.email,
+                      prefixIcon: const Icon(Icons.email_outlined, color: AppColors.iconColor),
                       validator: Validators.validateEmail,
                     ),
                     const SizedBox(height: 14),
-                    TextFormField(
+                    CustomTextField(
                       controller: _passwordController,
                       obscureText: _obscurePassword,
-                      style: const TextStyle(color: AppColors.textPrimary),
-                      decoration: InputDecoration(
-                        hintText: AppStrings.password,
-                        prefixIcon: const Icon(Icons.lock_outline, color: AppColors.iconColor),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                            color: AppColors.iconColor,
-                          ),
-                          onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                      hintText: AppStrings.password,
+                      prefixIcon: const Icon(Icons.lock_outline, color: AppColors.iconColor),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                          color: AppColors.iconColor,
                         ),
+                        onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                       ),
                       validator: Validators.validatePassword,
                     ),
                     const SizedBox(height: 14),
-                    TextFormField(
+                    CustomTextField(
                       controller: _confirmPasswordController,
                       obscureText: _obscureConfirm,
-                      style: const TextStyle(color: AppColors.textPrimary),
-                      decoration: InputDecoration(
-                        hintText: AppStrings.confirmPassword,
-                        prefixIcon: const Icon(Icons.lock_outline, color: AppColors.iconColor),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscureConfirm ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                            color: AppColors.iconColor,
-                          ),
-                          onPressed: () => setState(() => _obscureConfirm = !_obscureConfirm),
+                      hintText: AppStrings.confirmPassword,
+                      prefixIcon: const Icon(Icons.lock_outline, color: AppColors.iconColor),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscureConfirm ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                          color: AppColors.iconColor,
                         ),
+                        onPressed: () => setState(() => _obscureConfirm = !_obscureConfirm),
                       ),
                       validator: (value) => Validators.validateConfirmPassword(
                         value,
@@ -141,23 +128,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                     ),
                     const SizedBox(height: 14),
-                    TextFormField(
+                    CustomTextField(
                       controller: _phoneController,
                       keyboardType: TextInputType.phone,
-                      style: const TextStyle(color: AppColors.textPrimary),
-                      decoration: const InputDecoration(
-                        hintText: AppStrings.phoneNumber,
-                        prefixIcon: Icon(Icons.phone_outlined, color: AppColors.iconColor),
-                      ),
+                      hintText: AppStrings.phoneNumber,
+                      prefixIcon: const Icon(Icons.phone_outlined, color: AppColors.iconColor),
                       validator: Validators.validatePhone,
                     ),
                     const SizedBox(height: 28),
-                    state is AuthLoading
-                        ? const CircularProgressIndicator(color: AppColors.primary)
-                        : ElevatedButton(
-                            onPressed: _onRegister,
-                            child: const Text(AppStrings.createAccount),
-                          ),
+                    CustomElevatedButton(
+                      title: AppStrings.createAccount,
+                      isLoading: isLoading,
+                      onPressed: _onRegister,
+                    ),
                     const SizedBox(height: 20),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
