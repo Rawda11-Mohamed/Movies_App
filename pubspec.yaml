@@ -31,7 +31,7 @@ dependencies:
   go_router: ^14.3.0
 
   # Network (for teammates' TMDB usage)
-  dio: ^5.7.0
+  dio: ^5.11.1
   dartz: ^0.10.1
 
   # UI / UX

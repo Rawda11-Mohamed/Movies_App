@@ -1,6 +1,6 @@
-import 'package:movies_app/movies/data/models/movie_response_model.dart';
+import 'package:movies_app/movies/domain/entities/movie_entity.dart';
 
-class Movies {
+class MovieModel {
   int? id;
   String? url;
   String? imdbCode;
@@ -24,11 +24,10 @@ class Movies {
   String? mediumCoverImage;
   String? largeCoverImage;
   String? state;
-  List<Torrents>? torrents;
   String? dateUploaded;
   int? dateUploadedUnix;
 
-  Movies({
+  MovieModel({
     this.id,
     this.url,
     this.imdbCode,
@@ -52,22 +51,21 @@ class Movies {
     this.mediumCoverImage,
     this.largeCoverImage,
     this.state,
-    this.torrents,
     this.dateUploaded,
     this.dateUploadedUnix,
   });
 
-  Movies.fromJson(Map<String, dynamic> json) {
-    id = json["id"];
+  MovieModel.fromJson(Map<String, dynamic> json) {
+    id = (json["id"] as num?)?.toInt();
     url = json["url"];
     imdbCode = json["imdb_code"];
     title = json["title"];
     titleEnglish = json["title_english"];
     titleLong = json["title_long"];
     slug = json["slug"];
-    year = json["year"];
+    year = (json["year"] as num?)?.toInt();
     rating = (json["rating"] as num?)?.toDouble();
-    runtime = json["runtime"];
+    runtime = (json["runtime"] as num?)?.toInt();
     genres = json["genres"] == null ? null : List<String>.from(json["genres"]);
     summary = json["summary"];
     descriptionFull = json["description_full"];
@@ -81,52 +79,62 @@ class Movies {
     mediumCoverImage = json["medium_cover_image"];
     largeCoverImage = json["large_cover_image"];
     state = json["state"];
-    torrents =
-        json["torrents"] == null
-            ? null
-            : (json["torrents"] as List)
-                .map((e) => Torrents.fromJson(e))
-                .toList();
     dateUploaded = json["date_uploaded"];
-    dateUploadedUnix = json["date_uploaded_unix"];
+    dateUploadedUnix = (json["date_uploaded_unix"] as num?)?.toInt();
   }
 
-  static List<Movies> fromList(List<Map<String, dynamic>> list) {
-    return list.map(Movies.fromJson).toList();
+  static List<MovieModel> fromList(List<dynamic> list) {
+    return list
+        .map((e) => MovieModel.fromJson(e as Map<String, dynamic>))
+        .toList();
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> _data = <String, dynamic>{};
-    _data["id"] = id;
-    _data["url"] = url;
-    _data["imdb_code"] = imdbCode;
-    _data["title"] = title;
-    _data["title_english"] = titleEnglish;
-    _data["title_long"] = titleLong;
-    _data["slug"] = slug;
-    _data["year"] = year;
-    _data["rating"] = rating;
-    _data["runtime"] = runtime;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data["id"] = id;
+    data["url"] = url;
+    data["imdb_code"] = imdbCode;
+    data["title"] = title;
+    data["title_english"] = titleEnglish;
+    data["title_long"] = titleLong;
+    data["slug"] = slug;
+    data["year"] = year;
+    data["rating"] = rating;
+    data["runtime"] = runtime;
     if (genres != null) {
-      _data["genres"] = genres;
+      data["genres"] = genres;
     }
-    _data["summary"] = summary;
-    _data["description_full"] = descriptionFull;
-    _data["synopsis"] = synopsis;
-    _data["yt_trailer_code"] = ytTrailerCode;
-    _data["language"] = language;
-    _data["mpa_rating"] = mpaRating;
-    _data["background_image"] = backgroundImage;
-    _data["background_image_original"] = backgroundImageOriginal;
-    _data["small_cover_image"] = smallCoverImage;
-    _data["medium_cover_image"] = mediumCoverImage;
-    _data["large_cover_image"] = largeCoverImage;
-    _data["state"] = state;
-    if (torrents != null) {
-      _data["torrents"] = torrents?.map((e) => e.toJson()).toList();
-    }
-    _data["date_uploaded"] = dateUploaded;
-    _data["date_uploaded_unix"] = dateUploadedUnix;
-    return _data;
+    data["summary"] = summary;
+    data["description_full"] = descriptionFull;
+    data["synopsis"] = synopsis;
+    data["yt_trailer_code"] = ytTrailerCode;
+    data["language"] = language;
+    data["mpa_rating"] = mpaRating;
+    data["background_image"] = backgroundImage;
+    data["background_image_original"] = backgroundImageOriginal;
+    data["small_cover_image"] = smallCoverImage;
+    data["medium_cover_image"] = mediumCoverImage;
+    data["large_cover_image"] = largeCoverImage;
+    data["state"] = state;
+    data["date_uploaded"] = dateUploaded;
+    data["date_uploaded_unix"] = dateUploadedUnix;
+    return data;
+  }
+
+  MovieEntity toEntity() {
+    return MovieEntity(
+      id: id ?? 0,
+      title: title ?? '',
+      year: year ?? 0,
+      rating: rating ?? 0.0,
+      runtime: runtime ?? 0,
+      genres: genres ?? [],
+      summary: summary ?? '',
+      ytTrailerCode: ytTrailerCode ?? '',
+      language: language ?? '',
+      backgroundImage: backgroundImage ?? '',
+      mediumCoverImage: mediumCoverImage ?? '',
+      largeCoverImage: largeCoverImage ?? '',
+    );
   }
 }
