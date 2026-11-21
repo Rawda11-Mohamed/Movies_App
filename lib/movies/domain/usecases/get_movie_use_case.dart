@@ -6,7 +6,11 @@ class GetMoviesUseCase {
 
   GetMoviesUseCase(this.repo);
 
-  Future<List<MovieEntity>> call({required int page, required int limit}) {
-    return repo.getMovies(page: page, limit: limit);
+  Future<List<MovieEntity>> call({
+    required int page,
+    required int limit,
+    String? genre,
+  }) {
+    return repo.getMovies(page: page, limit: limit, genre: genre);
   }
 }

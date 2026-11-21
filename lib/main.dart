@@ -21,7 +21,11 @@ class MoviesApp extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.movie_creation_outlined, color: Color(0xFFFFC107), size: 64),
+              Icon(
+                Icons.movie_creation_outlined,
+                color: Color(0xFFFFC107),
+                size: 64,
+              ),
               SizedBox(height: 16),
               Text(
                 'Movies App',

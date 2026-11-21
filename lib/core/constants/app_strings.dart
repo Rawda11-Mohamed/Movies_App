@@ -62,7 +62,8 @@ class AppStrings {
   static const String emailRequired = 'Email is required';
   static const String emailInvalid = 'Enter a valid email address';
   static const String passwordRequired = 'Password is required';
-  static const String passwordTooShort = 'Password must be at least 6 characters';
+  static const String passwordTooShort =
+      'Password must be at least 6 characters';
   static const String passwordsDoNotMatch = 'Passwords do not match';
   static const String nameRequired = 'Name is required';
   static const String phoneRequired = 'Phone number is required';
@@ -71,7 +72,8 @@ class AppStrings {
   static const String networkError = 'No internet connection';
 
   // Success
-  static const String resetEmailSent = 'Password reset email sent! Check your inbox.';
+  static const String resetEmailSent =
+      'Password reset email sent! Check your inbox.';
   static const String profileUpdated = 'Profile updated successfully';
   static const String accountDeleted = 'Account deleted successfully';
 }

@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 class AppColors {
   AppColors._();
 
-  static const Color primary = Color(0xFFFFC107);       // Yellow accent
+  static const Color primary = Color(0xFFFFC107); // Yellow accent
   static const Color primaryDark = Color(0xFFFFB300);
-  static const Color background = Color(0xFF0D0D0D);    // Deep black
-  static const Color surface = Color(0xFF1A1A1A);       // Card background
+  static const Color background = Color(0xFF0D0D0D); // Deep black
+  static const Color surface = Color(0xFF1A1A1A); // Card background
   static const Color surfaceVariant = Color(0xFF2A2A2A);
   static const Color error = Color(0xFFCF6679);
   static const Color success = Color(0xFF4CAF50);

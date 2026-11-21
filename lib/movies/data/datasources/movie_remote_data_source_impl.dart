@@ -14,10 +14,15 @@ class MovieRemoteDataSourceImpl implements MovieRemoteDataSource {
   Future<MovieListModel> getMovies({
     required int page,
     required int limit,
+    String? genre,
   }) async {
     final response = await dio.get(
       '${ApiConstants.baseUrl}${ApiConstants.listMovies}',
-      queryParameters: {'page': page, 'limit': limit},
+      queryParameters: {
+        'page': page,
+        'limit': limit,
+        if (genre != null) 'genre': genre,
+      },
     );
     return MovieListModel.fromJson(response.data);
   }
@@ -32,18 +37,6 @@ class MovieRemoteDataSourceImpl implements MovieRemoteDataSource {
   }
 
   @override
-  Future<MovieListModel> getMoviesByGenre({
-    required String genre,
-    required int page,
-  }) async {
-    final response = await dio.get(
-      '${ApiConstants.baseUrl}${ApiConstants.listMovies}',
-      queryParameters: {'genre': genre, 'page': page},
-    );
-    return MovieListModel.fromJson(response.data);
-  }
-
-  @override
   Future<MovieListModel> getSimilarMovies({required int id}) async {
     final response = await dio.get(
       '${ApiConstants.baseUrl}${ApiConstants.movieSuggestions}',
@@ -55,11 +48,12 @@ class MovieRemoteDataSourceImpl implements MovieRemoteDataSource {
   @override
   Future<MovieListModel> searchMovies({
     required int page,
+    required int limit,
     required String query,
   }) async {
     final response = await dio.get(
       '${ApiConstants.baseUrl}${ApiConstants.listMovies}',
-      queryParameters: {'page': page, 'query_term': query},
+      queryParameters: {'page': page, 'limit': limit, 'query_term': query},
     );
     return MovieListModel.fromJson(response.data);
   }

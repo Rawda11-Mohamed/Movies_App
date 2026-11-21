@@ -10,9 +10,10 @@ class MovieListModel {
   MovieListModel.fromJson(Map<String, dynamic> json) {
     status = json["status"] as String?;
     statusMessage = json["status_message"] as String?;
-    data = json["data"] == null
-        ? null
-        : MovieListDataModel.fromJson(json["data"] as Map<String, dynamic>);
+    data =
+        json["data"] == null
+            ? null
+            : MovieListDataModel.fromJson(json["data"] as Map<String, dynamic>);
   }
 
   Map<String, dynamic> toJson() {
@@ -32,15 +33,21 @@ class MovieListDataModel {
   int? pageNumber;
   List<MovieModel>? movies;
 
-  MovieListDataModel({this.movieCount, this.limit, this.pageNumber, this.movies});
+  MovieListDataModel({
+    this.movieCount,
+    this.limit,
+    this.pageNumber,
+    this.movies,
+  });
 
   MovieListDataModel.fromJson(Map<String, dynamic> json) {
     movieCount = (json["movie_count"] as num?)?.toInt();
     limit = (json["limit"] as num?)?.toInt();
     pageNumber = (json["page_number"] as num?)?.toInt();
-    movies = (json["movies"] as List?)
-        ?.map((e) => MovieModel.fromJson(e as Map<String, dynamic>))
-        .toList();
+    movies =
+        (json["movies"] as List?)
+            ?.map((e) => MovieModel.fromJson(e as Map<String, dynamic>))
+            .toList();
   }
 
   Map<String, dynamic> toJson() {

@@ -19,7 +19,7 @@ dependencies:
   google_sign_in: ^6.2.1
 
   # State Management
-  flutter_bloc: ^8.1.6
+  flutter_bloc: ^9.1.1
   equatable: ^2.0.5
 
   # Local Storage
@@ -41,6 +41,8 @@ dependencies:
 
   # Utils
   connectivity_plus: ^6.0.5
+  stream_transform: ^2.1.2
+  bloc_concurrency: ^0.3.0
 
 dev_dependencies:
   flutter_test:
