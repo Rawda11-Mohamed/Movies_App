@@ -5,16 +5,19 @@ import 'package:movies_app/movies/data/datasources/movie_remote_data_source.dart
 import 'package:movies_app/movies/data/models/movie_list_model.dart';
 import 'package:movies_app/movies/data/models/movie_model.dart';
 
+
 class MovieRemoteDataSourceImpl implements MovieRemoteDataSource {
   final Dio dio;
 
   MovieRemoteDataSourceImpl(this.dio);
 
-  @override
+  
+     @override
   Future<MovieListModel> getMovies({
     required int page,
     required int limit,
     String? genre,
+    String? sortBy,
   }) async {
     final response = await dio.get(
       '${ApiConstants.baseUrl}${ApiConstants.listMovies}',
@@ -22,6 +25,7 @@ class MovieRemoteDataSourceImpl implements MovieRemoteDataSource {
         'page': page,
         'limit': limit,
         if (genre != null) 'genre': genre,
+        if (sortBy != null) 'sort_by': sortBy,
       },
     );
     return MovieListModel.fromJson(response.data);

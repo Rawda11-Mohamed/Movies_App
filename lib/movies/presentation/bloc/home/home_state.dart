@@ -1,53 +1,49 @@
 import 'package:equatable/equatable.dart';
 import '../../../domain/entities/movie_entity.dart';
 
-abstract class HomeState extends Equatable {
-  const HomeState();
+class HomeState extends Equatable {
+  final bool isCarouselLoading;
+  final List<MovieEntity> carouselMovies;
+  final String carouselError;
 
-  @override
-  List<Object?> get props => [];
-}
+  final bool isActionLoading;
+  final List<MovieEntity> actionMovies;
+  final String actionError;
 
-class HomeInitial extends HomeState {
-  const HomeInitial();
-}
-
-class HomeLoading extends HomeState {
-  const HomeLoading();
-}
-
-class HomeLoaded extends HomeState {
-  final List<MovieEntity> movies;
-  final bool hasReachedMax;
-  final bool isLoadingMore;
-
-  const HomeLoaded({
-    required this.movies,
-    this.hasReachedMax = false,
-    this.isLoadingMore = false,
+  const HomeState({
+    this.isCarouselLoading = true,
+    this.carouselMovies = const [],
+    this.carouselError = '',
+    this.isActionLoading = true,
+    this.actionMovies = const [],
+    this.actionError = '',
   });
 
-  HomeLoaded copyWith({
-    List<MovieEntity>? movies,
-    bool? hasReachedMax,
-    bool? isLoadingMore,
+  HomeState copyWith({
+    bool? isCarouselLoading,
+    List<MovieEntity>? carouselMovies,
+    String? carouselError,
+    bool? isActionLoading,
+    List<MovieEntity>? actionMovies,
+    String? actionError,
   }) {
-    return HomeLoaded(
-      movies: movies ?? this.movies,
-      hasReachedMax: hasReachedMax ?? this.hasReachedMax,
-      isLoadingMore: isLoadingMore ?? this.isLoadingMore,
+    return HomeState(
+      isCarouselLoading: isCarouselLoading ?? this.isCarouselLoading,
+      carouselMovies: carouselMovies ?? this.carouselMovies,
+      carouselError: carouselError ?? this.carouselError,
+      isActionLoading: isActionLoading ?? this.isActionLoading,
+      actionMovies: actionMovies ?? this.actionMovies,
+      actionError: actionError ?? this.actionError,
     );
   }
 
   @override
-  List<Object?> get props => [movies, hasReachedMax, isLoadingMore];
-}
-
-class HomeError extends HomeState {
-  final String message;
-
-  const HomeError(this.message);
-
-  @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [
+        isCarouselLoading,
+        carouselMovies,
+        carouselError,
+        isActionLoading,
+        actionMovies,
+        actionError,
+      ];
 }

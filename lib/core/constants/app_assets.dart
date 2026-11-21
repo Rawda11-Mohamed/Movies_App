@@ -9,4 +9,5 @@ class AppAssets {
   static const String onboarding3 = '$_imagesPath/onboarding_3.png';
   static const String onboarding4 = '$_imagesPath/onboarding_4.png';
   static const String onboarding5 = '$_imagesPath/onboarding_5.png';
+  static const String homeCaroselSliderBg = '$_imagesPath/home_bg.png';
 }

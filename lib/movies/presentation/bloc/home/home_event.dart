@@ -10,7 +10,3 @@ abstract class HomeEvent extends Equatable {
 class LoadMoviesEvent extends HomeEvent {
   const LoadMoviesEvent();
 }
-
-class LoadMoreMoviesEvent extends HomeEvent {
-  const LoadMoreMoviesEvent();
-}

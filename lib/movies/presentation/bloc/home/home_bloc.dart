@@ -5,53 +5,58 @@ import 'package:movies_app/movies/presentation/bloc/home/home_state.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final GetMoviesUseCase getMoviesUseCase;
-  int _currentPage = 1;
-  static const int _limit = 20;
 
-  HomeBloc(this.getMoviesUseCase) : super(const HomeInitial()) {
+  static const int _carouselLimit = 10;
+  static const int _actionLimit = 20;
+  static const String _actionGenre = 'Action';
+
+  HomeBloc(this.getMoviesUseCase) : super(const HomeState()) {
     on<LoadMoviesEvent>(_onLoadMovies);
-    on<LoadMoreMoviesEvent>(_onLoadMoreMovies);
   }
 
   Future<void> _onLoadMovies(
     LoadMoviesEvent event,
     Emitter<HomeState> emit,
   ) async {
-    _currentPage = 1;
-    emit(const HomeLoading());
+  
+    emit(const HomeState());
+
+    await Future.wait([_loadCarousel(emit), _loadAction(emit)]);
+  }
+
+  Future<void> _loadCarousel(Emitter<HomeState> emit) async {
     try {
-      final movies = await getMoviesUseCase(page: _currentPage, limit: _limit);
-      emit(HomeLoaded(movies: movies, hasReachedMax: movies.length < _limit));
+      final movies = await getMoviesUseCase(
+        page: 1,
+        limit: _carouselLimit,
+        sortBy: 'rating',
+      );
+      emit(state.copyWith(isCarouselLoading: false, carouselMovies: movies));
     } catch (e) {
-      emit(HomeError("There is an error $e"));
+      emit(
+        state.copyWith(
+          isCarouselLoading: false,
+          carouselError: 'Failed to load movies: $e',
+        ),
+      );
     }
   }
 
-  Future<void> _onLoadMoreMovies(
-    LoadMoreMoviesEvent event,
-    Emitter<HomeState> emit,
-  ) async {
-    final current = state;
-    if (current is! HomeLoaded ||
-        current.hasReachedMax ||
-        current.isLoadingMore) {
-      return;
-    }
-
-    emit(current.copyWith(isLoadingMore: true));
+  Future<void> _loadAction(Emitter<HomeState> emit) async {
     try {
-      final nextPage = _currentPage + 1;
-      final movies = await getMoviesUseCase(page: nextPage, limit: _limit);
-      _currentPage = nextPage;
+      final movies = await getMoviesUseCase(
+        page: 1,
+        limit: _actionLimit,
+        genre: _actionGenre,
+      );
+      emit(state.copyWith(isActionLoading: false, actionMovies: movies));
+    } catch (e) {
       emit(
-        current.copyWith(
-          movies: [...current.movies, ...movies],
-          hasReachedMax: movies.length < _limit,
-          isLoadingMore: false,
+        state.copyWith(
+          isActionLoading: false,
+          actionError: 'Failed to load movies: $e',
         ),
       );
-    } catch (e) {
-      emit(current.copyWith(isLoadingMore: false));
     }
   }
 }

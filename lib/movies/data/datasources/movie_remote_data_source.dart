@@ -6,6 +6,7 @@ abstract class MovieRemoteDataSource {
     required int page,
     required int limit,
     String? genre,
+    String? sortBy,
   });
 
   Future<MovieListModel> searchMovies({

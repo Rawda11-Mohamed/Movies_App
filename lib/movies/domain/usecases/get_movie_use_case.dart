@@ -10,7 +10,13 @@ class GetMoviesUseCase {
     required int page,
     required int limit,
     String? genre,
+    String? sortBy,
   }) {
-    return repo.getMovies(page: page, limit: limit, genre: genre);
+    return repo.getMovies(
+      page: page,
+      limit: limit,
+      genre: genre,
+      sortBy: sortBy,
+    );
   }
 }

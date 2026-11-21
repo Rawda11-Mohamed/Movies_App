@@ -7,16 +7,18 @@ class MovieRepoImplement implements MovieRepoAbstract {
 
   MovieRepoImplement(this.remoteDataSource);
 
-  @override
+   @override
   Future<List<MovieEntity>> getMovies({
     required int page,
     required int limit,
     String? genre,
+    String? sortBy,
   }) async {
     final response = await remoteDataSource.getMovies(
       page: page,
       limit: limit,
       genre: genre,
+      sortBy: sortBy,
     );
     return response.data?.movies?.map((m) => m.toEntity()).toList() ?? [];
   }

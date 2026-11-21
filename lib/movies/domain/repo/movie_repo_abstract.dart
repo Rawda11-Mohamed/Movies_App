@@ -5,6 +5,7 @@ abstract class MovieRepoAbstract {
     required int page,
     required int limit,
     String? genre,
+    String? sortBy,
   });
   Future<List<MovieEntity>> searchMovies({
     required int page,
