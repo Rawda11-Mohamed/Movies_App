@@ -94,13 +94,11 @@ class AppTheme {
         labelLarge: TextStyle(color: AppColors.primary, fontSize: 14, fontWeight: FontWeight.w600),
       ),
       dividerTheme: const DividerThemeData(color: AppColors.divider, thickness: 1),
-     cardTheme: CardThemeData(
-  color: AppColors.surface,
-  elevation: 0,
-  shape: RoundedRectangleBorder(
-    borderRadius: BorderRadius.circular(12),
-  ),
-),
+      cardTheme: CardTheme(
+        color: AppColors.surface,
+        elevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
       snackBarTheme: SnackBarThemeData(
         backgroundColor: AppColors.surface,
         contentTextStyle: const TextStyle(color: AppColors.textPrimary),

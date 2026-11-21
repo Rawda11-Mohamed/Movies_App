@@ -1,0 +1,58 @@
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/usecases/usecase.dart';
+import '../../domain/usecases/add_to_history.dart';
+import '../../domain/usecases/clear_history.dart';
+import '../../domain/usecases/get_history.dart';
+import 'history_event.dart';
+import 'history_state.dart';
+
+class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
+  final GetHistory getHistory;
+  final AddToHistory addToHistory;
+  final ClearHistory clearHistory;
+
+  HistoryBloc({
+    required this.getHistory,
+    required this.addToHistory,
+    required this.clearHistory,
+  }) : super(const HistoryInitial()) {
+    on<LoadHistory>(_onLoad);
+    on<AddMovieToHistory>(_onAdd);
+    on<ClearAllHistory>(_onClear);
+  }
+
+  Future<void> _onLoad(LoadHistory event, Emitter<HistoryState> emit) async {
+    emit(const HistoryLoading());
+    await _refresh(emit);
+  }
+
+  Future<void> _onAdd(
+    AddMovieToHistory event,
+    Emitter<HistoryState> emit,
+  ) async {
+    final result = await addToHistory(event.movie);
+    await result.fold(
+      (failure) async => emit(HistoryError(failure.message)),
+      (_) => _refresh(emit),
+    );
+  }
+
+  Future<void> _onClear(
+    ClearAllHistory event,
+    Emitter<HistoryState> emit,
+  ) async {
+    final result = await clearHistory(const NoParams());
+    await result.fold(
+      (failure) async => emit(HistoryError(failure.message)),
+      (_) => _refresh(emit),
+    );
+  }
+
+  Future<void> _refresh(Emitter<HistoryState> emit) async {
+    final result = await getHistory(const NoParams());
+    result.fold(
+      (failure) => emit(HistoryError(failure.message)),
+      (movies) => emit(HistoryLoaded(movies)),
+    );
+  }
+}
