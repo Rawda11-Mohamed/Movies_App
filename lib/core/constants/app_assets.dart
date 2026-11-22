@@ -6,6 +6,9 @@ class AppAssets {
   // Logo / splash
   static const String logo = '$_imagesPath/Group 44.png';
   static const String routeLogoText = '$_imagesPath/route_logo_text.png';
+    static const String pop =    '$_imagesPath/pop.png';
+ 
+
 
   // Onboarding backgrounds (movie posters)
   static const String onboarding1 = '$_imagesPath/xl_848228_477d9240 1.png';

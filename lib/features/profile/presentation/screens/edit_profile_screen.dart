@@ -127,6 +127,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   void _onAvatarPickerModal() {
     showModalBottomSheet(
+      isScrollControlled: true,
       context: context,
       backgroundColor: const Color(0xFF212121),
       shape: const RoundedRectangleBorder(
@@ -300,8 +301,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
+      
       appBar: const CustomAppBar(
-        title: 'Pick Avatar',
+        title:'Pick Avatar' ,
+       
+        
         showBackButton: true,
       ),
       body: BlocConsumer<ProfileBloc, ProfileState>(
