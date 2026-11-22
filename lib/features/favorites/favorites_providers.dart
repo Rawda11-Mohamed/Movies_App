@@ -1,6 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'data/datasources/rating_remote_datasource.dart';
+import 'data/repositories/rating_repository_impl.dart';
+import 'domain/usecases/delete_movie_rating.dart';
+import 'domain/usecases/get_movie_rating.dart';
+import 'domain/usecases/rate_movie.dart';
+import 'presentation/bloc/rating_bloc.dart';
 
 import 'data/datasources/history_remote_datasource.dart';
 import 'data/datasources/watchlist_remote_datasource.dart';
@@ -34,8 +40,20 @@ List<BlocProvider> favoritesProviders() {
       getUserId: currentUid,
     ),
   );
+    final ratingRepo = RatingRepositoryImpl(
+    RatingRemoteDataSourceImpl(
+      firestore: FirebaseFirestore.instance,
+      getUserId: currentUid,
+    ),
+  );
 
-  return [
+  return [    BlocProvider<RatingBloc>(
+      create: (_) => RatingBloc(
+        getMovieRating: GetMovieRating(ratingRepo),
+        rateMovie: RateMovie(ratingRepo),
+        deleteMovieRating: DeleteMovieRating(ratingRepo),
+      ),
+    ),
     BlocProvider<WatchlistBloc>(
       create: (_) => WatchlistBloc(
         getWatchlist: GetWatchlist(watchlistRepo),
