@@ -15,7 +15,7 @@ class BookmarkButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<WatchlistBloc, WatchlistState>(
       builder: (context, state) {
-        final isSaved = state is WatchlistLoaded && state.isSaved(movie.movieId);
+        final isSaved = state.isSaved(movie.movieId);
         return IconButton(
           icon: Icon(
             isSaved ? Icons.bookmark : Icons.bookmark_border,

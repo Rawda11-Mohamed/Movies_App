@@ -41,17 +41,29 @@ class WatchlistBloc extends Bloc<WatchlistEvent, WatchlistState> {
     Emitter<WatchlistState> emit,
   ) async {
     emit(const WatchlistLoading());
-    await _refresh(emit);
+    final result = await getWatchlist(const NoParams());
+    result.fold(
+      (failure) => emit(WatchlistError(failure.message)),
+      (movies) => emit(WatchlistLoaded(movies)),
+    );
   }
 
+  /// بعد نجاح الـ add بنحدّث القائمة محلياً بدل ما نعمل fetch تاني من Firestore،
+  /// فالأيقونة بتتغير فوراً وبنوفّر read.
   Future<void> _onAdd(
     AddMovieToWatchlist event,
     Emitter<WatchlistState> emit,
   ) async {
     final result = await addToWatchlist(event.movie);
-    await result.fold(
-      (failure) async => emit(WatchlistError(failure.message)),
-      (_) => _refresh(emit),
+    result.fold(
+      (failure) => emit(
+        WatchlistError(failure.message, movies: state.movies),
+      ),
+      (_) {
+        final others =
+            state.movies.where((m) => m.movieId != event.movie.movieId);
+        emit(WatchlistLoaded([event.movie, ...others]));
+      },
     );
   }
 
@@ -60,17 +72,17 @@ class WatchlistBloc extends Bloc<WatchlistEvent, WatchlistState> {
     Emitter<WatchlistState> emit,
   ) async {
     final result = await removeFromWatchlist(event.movieId);
-    await result.fold(
-      (failure) async => emit(WatchlistError(failure.message)),
-      (_) => _refresh(emit),
-    );
-  }
-
-  Future<void> _refresh(Emitter<WatchlistState> emit) async {
-    final result = await getWatchlist(const NoParams());
     result.fold(
-      (failure) => emit(WatchlistError(failure.message)),
-      (movies) => emit(WatchlistLoaded(movies)),
+      (failure) => emit(
+        WatchlistError(failure.message, movies: state.movies),
+      ),
+      (_) {
+        emit(
+          WatchlistLoaded(
+            state.movies.where((m) => m.movieId != event.movieId).toList(),
+          ),
+        );
+      },
     );
   }
 }
