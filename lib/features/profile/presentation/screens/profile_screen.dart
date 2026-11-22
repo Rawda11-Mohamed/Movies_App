@@ -46,7 +46,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (avatarKey.startsWith('http')) {
       return NetworkImage(avatarKey);
     }
-    if (avatarKey.startsWith('/') || avatarKey.contains(':\\')) {
+    if (avatarKey.startsWith('/') || avatarKey.contains(r':\')) {
       final file = File(avatarKey);
       if (file.existsSync()) {
         return FileImage(file);
@@ -108,15 +108,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
               );
             }
 
-            return Column(
-              children: [
-                const SizedBox(height: 16),
-                _buildHeader(profile),
-                const SizedBox(height: 20),
-                _buildActionButtons(context),
-                const SizedBox(height: 20),
-                Expanded(child: _buildTabsSection(profile)),
-              ],
+            return SingleChildScrollView(
+              child: Column(
+                children: [
+                  const SizedBox(height: 24),
+                  _buildProfileHeader(profile),
+                  const SizedBox(height: 24),
+                  _buildActionButtons(context),
+                  const SizedBox(height: 20),
+                  _buildTabSection(profile),
+                ],
+              ),
             );
           },
         ),
@@ -124,56 +126,48 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildHeader(ProfileEntity profile) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 46,
-            backgroundColor: AppColors.surfaceVariant,
-            backgroundImage: _resolveAvatar(profile.avatarKey),
+  Widget _buildProfileHeader(ProfileEntity profile) {
+    return Column(
+      children: [
+        CircleAvatar(
+          radius: 54,
+          backgroundColor: AppColors.surfaceVariant,
+          backgroundImage: _resolveAvatar(profile.avatarKey),
+        ),
+        const SizedBox(height: 14),
+        Text(
+          profile.displayName.isNotEmpty ? profile.displayName : 'John Safwat',
+          style: const TextStyle(
+            color: AppColors.textPrimary,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
           ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  profile.displayName.isNotEmpty
-                      ? profile.displayName
-                      : 'Movie Fan',
-                  style: const TextStyle(
-                    color: AppColors.textPrimary,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  maxLines: 1,
-                  overflow: TextEmitter.ellipsis,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  profile.email,
-                  style: const TextStyle(
-                    color: AppColors.textSecondary,
-                    fontSize: 13,
-                  ),
-                  maxLines: 1,
-                  overflow: TextEmitter.ellipsis,
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    _buildStatItem('${profile.wishlistCount}', AppStrings.wishList),
-                    const SizedBox(width: 24),
-                    _buildStatItem('${profile.historyCount}', AppStrings.history),
-                  ],
-                ),
-              ],
-            ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          profile.email,
+          style: const TextStyle(
+            color: AppColors.textSecondary,
+            fontSize: 14,
           ),
-        ],
-      ),
+        ),
+        const SizedBox(height: 20),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 50),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _buildStatItem('${profile.wishlistCount}', AppStrings.wishList),
+              Container(
+                height: 36,
+                width: 1,
+                color: AppColors.divider,
+              ),
+              _buildStatItem('${profile.historyCount}', AppStrings.history),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -185,16 +179,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
           count,
           style: const TextStyle(
             color: AppColors.textPrimary,
-            fontSize: 20,
+            fontSize: 22,
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: 2),
+        const SizedBox(height: 4),
         Text(
           label,
           style: const TextStyle(
             color: AppColors.textSecondary,
-            fontSize: 13,
+            fontSize: 14,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -204,23 +198,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildActionButtons(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Row(
         children: [
           Expanded(
-            flex: 2,
+            flex: 3,
             child: CustomElevatedButton(
               title: AppStrings.editProfile,
-              height: 46,
+              height: 48,
               onPressed: () => context.push(AppRoutes.editProfile),
             ),
           ),
           const SizedBox(width: 12),
           Expanded(
-            flex: 1,
+            flex: 2,
             child: CustomOutlinedButton(
-              title: AppStrings.logout,
-              height: 46,
+              title: 'Exit',
+              height: 48,
               borderColor: AppColors.error,
               textColor: AppColors.error,
               icon: const Icon(Icons.exit_to_app, color: AppColors.error, size: 20),
@@ -263,40 +257,44 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildTabsSection(ProfileEntity profile) {
+  Widget _buildTabSection(ProfileEntity profile) {
     return DefaultTabController(
       length: 2,
       child: Column(
         children: [
-          const TabBar(
-            indicatorColor: AppColors.primary,
-            indicatorWeight: 3,
-            indicatorSize: TabBarIndicatorSize.tab,
-            labelColor: AppColors.primary,
-            unselectedLabelColor: AppColors.textSecondary,
-            tabs: [
-              Tab(
-                icon: Icon(Icons.bookmark_outline),
-                text: AppStrings.wishList,
-              ),
-              Tab(
-                icon: Icon(Icons.history),
-                text: AppStrings.history,
-              ),
-            ],
+          Container(
+            decoration: const BoxDecoration(
+              border: Border(bottom: BorderSide(color: AppColors.divider, width: 1)),
+            ),
+            child: const TabBar(
+              indicatorColor: AppColors.primary,
+              indicatorWeight: 3,
+              indicatorSize: TabBarIndicatorSize.tab,
+              labelColor: AppColors.primary,
+              unselectedLabelColor: AppColors.textSecondary,
+              tabs: [
+                Tab(
+                  icon: Icon(Icons.bookmark_outline),
+                  text: AppStrings.wishList,
+                ),
+                Tab(
+                  icon: Icon(Icons.folder_open_outlined),
+                  text: AppStrings.history,
+                ),
+              ],
+            ),
           ),
-          Expanded(
+          SizedBox(
+            height: 320,
             child: TabBarView(
               children: [
                 _buildEmptyTabState(
-                  icon: Icons.bookmark_border_rounded,
-                  title: 'No Movies in Wish List',
-                  subtitle: 'Explore movies and add your favorites to watch later',
+                  icon: Icons.movie_outlined,
+                  message: 'No Movies in Wish List',
                 ),
                 _buildEmptyTabState(
-                  icon: Icons.history_toggle_off_rounded,
-                  title: 'No Watch History',
-                  subtitle: 'Movies you have watched will appear here',
+                  icon: Icons.folder_open_outlined,
+                  message: 'No Watch History Yet',
                 ),
               ],
             ),
@@ -308,40 +306,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildEmptyTabState({
     required IconData icon,
-    required String title,
-    required String subtitle,
+    required String message,
   }) {
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 70, color: AppColors.textHint),
-            const SizedBox(height: 16),
-            Text(
-              title,
-              style: const TextStyle(
-                color: AppColors.textPrimary,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 75, color: AppColors.primary.withValues(alpha: 0.8)),
+          const SizedBox(height: 16),
+          Text(
+            message,
+            style: const TextStyle(
+              color: AppColors.textSecondary,
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
             ),
-            const SizedBox(height: 8),
-            Text(
-              subtitle,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: AppColors.textSecondary,
-                fontSize: 13,
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 }
-
-// Helper typedef for text overflow
-typedef TextEmitter = TextOverflow;

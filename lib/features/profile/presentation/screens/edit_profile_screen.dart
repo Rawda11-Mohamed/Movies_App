@@ -32,6 +32,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   String _selectedAvatarKey = 'avatar_1';
   String? _customImagePath;
 
+  final List<String> _presetAvatars = [
+    AppAssets.avatar1,
+    AppAssets.avatar2,
+    AppAssets.avatar3,
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -78,7 +84,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     if (key.startsWith('http')) {
       return NetworkImage(key);
     }
-    if (key.startsWith('/') || key.contains(':\\')) {
+    if (key.startsWith('/') || key.contains(r':\')) {
       final file = File(key);
       if (file.existsSync()) {
         return FileImage(file);
@@ -122,73 +128,96 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   void _onAvatarPickerModal() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.surface,
+      backgroundColor: const Color(0xFF212121),
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (bottomSheetContext) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Choose Avatar',
-                style: TextStyle(
-                  color: AppColors.textPrimary,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+      builder: (bottomSheetContext) => StatefulBuilder(
+        builder: (context, setModalState) => SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 20),
+                  decoration: BoxDecoration(
+                    color: AppColors.divider,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _buildPresetOption('avatar_1', AppAssets.avatar1, bottomSheetContext),
-                  _buildPresetOption('avatar_2', AppAssets.avatar2, bottomSheetContext),
-                  _buildPresetOption('avatar_3', AppAssets.avatar3, bottomSheetContext),
-                ],
-              ),
-              const SizedBox(height: 20),
-              CustomOutlinedButton(
-                title: 'Upload From Gallery',
-                icon: const Icon(Icons.photo_library_outlined, color: AppColors.primary),
-                onPressed: () {
-                  Navigator.of(bottomSheetContext).pop();
-                  _pickCustomImage();
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+                const Text(
+                  'Pick Avatar',
+                  style: TextStyle(
+                    color: AppColors.textPrimary,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                // 3x3 Grid of Avatars
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF282828),
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  child: GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: 9,
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      crossAxisSpacing: 14,
+                      mainAxisSpacing: 14,
+                      childAspectRatio: 1.0,
+                    ),
+                    itemBuilder: (context, index) {
+                      final assetIndex = index % _presetAvatars.length;
+                      final assetPath = _presetAvatars[assetIndex];
+                      final key = 'avatar_${assetIndex + 1}';
+                      final isSelected = _selectedAvatarKey == key && _customImagePath == null;
 
-  Widget _buildPresetOption(String key, String assetPath, BuildContext ctx) {
-    final isSelected = _selectedAvatarKey == key && _customImagePath == null;
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedAvatarKey = key;
-          _customImagePath = null;
-        });
-        Navigator.of(ctx).pop();
-      },
-      child: Container(
-        padding: const EdgeInsets.all(4),
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          border: Border.all(
-            color: isSelected ? AppColors.primary : Colors.transparent,
-            width: 3,
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _selectedAvatarKey = key;
+                            _customImagePath = null;
+                          });
+                          Navigator.of(bottomSheetContext).pop();
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: isSelected ? AppColors.primary : Colors.transparent,
+                              width: 3,
+                            ),
+                          ),
+                          child: CircleAvatar(
+                            backgroundColor: AppColors.surfaceVariant,
+                            backgroundImage: AssetImage(assetPath),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: 18),
+                CustomOutlinedButton(
+                  title: 'Upload Custom Photo',
+                  icon: const Icon(Icons.photo_library_outlined, color: AppColors.primary),
+                  onPressed: () {
+                    Navigator.of(bottomSheetContext).pop();
+                    _pickCustomImage();
+                  },
+                ),
+              ],
+            ),
           ),
-        ),
-        child: CircleAvatar(
-          radius: 34,
-          backgroundColor: AppColors.surfaceVariant,
-          backgroundImage: AssetImage(assetPath),
         ),
       ),
     );
@@ -209,7 +238,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           ),
         );
 
-    // 2. Update Auth display name if changed
+    // 2. Update Auth display name
     context.read<AuthBloc>().add(
           UpdateProfileRequested(displayName: name),
         );
@@ -272,7 +301,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: const CustomAppBar(
-        title: AppStrings.editProfile,
+        title: 'Pick Avatar',
         showBackButton: true,
       ),
       body: BlocConsumer<ProfileBloc, ProfileState>(
@@ -305,53 +334,24 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // Main Avatar with edit badge
+                    // Main Avatar
                     Center(
                       child: GestureDetector(
                         onTap: _onAvatarPickerModal,
-                        child: Stack(
-                          children: [
-                            CircleAvatar(
-                              radius: 54,
-                              backgroundColor: AppColors.surfaceVariant,
-                              backgroundImage: _resolveAvatarImage(_selectedAvatarKey),
-                            ),
-                            Positioned(
-                              bottom: 0,
-                              right: 0,
-                              child: Container(
-                                padding: const EdgeInsets.all(6),
-                                decoration: const BoxDecoration(
-                                  color: AppColors.primary,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  Icons.camera_alt,
-                                  color: Colors.black,
-                                  size: 18,
-                                ),
-                              ),
-                            ),
-                          ],
+                        child: CircleAvatar(
+                          radius: 56,
+                          backgroundColor: AppColors.surfaceVariant,
+                          backgroundImage: _resolveAvatarImage(_selectedAvatarKey),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 12),
-                    TextButton.icon(
-                      onPressed: _onAvatarPickerModal,
-                      icon: const Icon(Icons.image_outlined, color: AppColors.primary, size: 18),
-                      label: const Text(
-                        'Change Avatar',
-                        style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 28),
 
                     // Name Field
                     CustomTextField(
                       controller: _nameController,
                       hintText: AppStrings.name,
-                      prefixIcon: const Icon(Icons.person_outline, color: AppColors.iconColor),
+                      prefixIcon: const Icon(Icons.person, color: AppColors.iconColor),
                       validator: Validators.validateName,
                       textInputAction: TextInputAction.next,
                     ),
@@ -361,20 +361,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     CustomTextField(
                       controller: _phoneController,
                       hintText: AppStrings.phoneNumber,
-                      prefixIcon: const Icon(Icons.phone_outlined, color: AppColors.iconColor),
+                      prefixIcon: const Icon(Icons.phone, color: AppColors.iconColor),
                       keyboardType: TextInputType.phone,
                       validator: Validators.validatePhone,
                       textInputAction: TextInputAction.next,
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Email Field (Read-only)
-                    CustomTextField(
-                      controller: _emailController,
-                      hintText: AppStrings.email,
-                      prefixIcon: const Icon(Icons.email_outlined, color: AppColors.iconColor),
-                      readOnly: true,
-                      enabled: false,
                     ),
                     const SizedBox(height: 12),
 
@@ -387,20 +377,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         child: const Text(
                           AppStrings.resetPassword,
                           style: TextStyle(
-                            color: AppColors.primary,
+                            color: AppColors.textPrimary,
                             fontSize: 14,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 36),
 
-                    // Delete Account Button (Red outlined)
-                    CustomOutlinedButton(
+                    // Delete Account Button (Red filled/outlined)
+                    CustomElevatedButton(
                       title: AppStrings.deleteAccount,
-                      borderColor: AppColors.error,
-                      textColor: AppColors.error,
+                      backgroundColor: const Color(0xFFE53935),
+                      textColor: Colors.white,
                       onPressed: _confirmDeleteAccount,
                     ),
                     const SizedBox(height: 16),
