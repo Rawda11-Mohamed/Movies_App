@@ -1,10 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_bloc/flutter_bloc.dart' show BlocProvider;
-import 'package:movies_app/features/favorites/presentation/bloc/history_event.dart';
-import 'package:movies_app/features/favorites/presentation/bloc/watchlist_event.dart';
- 
 
 import 'data/datasources/history_remote_datasource.dart';
 import 'data/datasources/watchlist_remote_datasource.dart';
@@ -19,7 +15,11 @@ import 'domain/usecases/remove_from_watchlist.dart';
 import 'presentation/bloc/history_bloc.dart';
 import 'presentation/bloc/watchlist_bloc.dart';
 
-List<BlocProvider> favoritesProviders() {  String? currentUid() => FirebaseAuth.instance.currentUser?.uid;
+List<BlocProvider> favoritesProviders() {
+  String? currentUid() => FirebaseAuth.instance.currentUser?.uid;
+
+  final uidStream =
+      FirebaseAuth.instance.authStateChanges().map((user) => user?.uid);
 
   final watchlistRepo = WatchlistRepositoryImpl(
     WatchlistRemoteDataSourceImpl(
@@ -41,14 +41,16 @@ List<BlocProvider> favoritesProviders() {  String? currentUid() => FirebaseAuth.
         getWatchlist: GetWatchlist(watchlistRepo),
         addToWatchlist: AddToWatchlist(watchlistRepo),
         removeFromWatchlist: RemoveFromWatchlist(watchlistRepo),
-      )..add(const LoadWatchlist()),
+        userStream: uidStream,
+      ),
     ),
     BlocProvider<HistoryBloc>(
       create: (_) => HistoryBloc(
         getHistory: GetHistory(historyRepo),
         addToHistory: AddToHistory(historyRepo),
         clearHistory: ClearHistory(historyRepo),
-      )..add(const LoadHistory()),
+        userStream: uidStream,
+      ),
     ),
   ];
 }

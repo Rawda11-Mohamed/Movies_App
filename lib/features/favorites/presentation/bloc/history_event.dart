@@ -12,6 +12,10 @@ class LoadHistory extends HistoryEvent {
   const LoadHistory();
 }
 
+class ClearHistoryState extends HistoryEvent {
+  const ClearHistoryState();
+}
+
 class AddMovieToHistory extends HistoryEvent {
   final SavedMovieEntity movie;
 

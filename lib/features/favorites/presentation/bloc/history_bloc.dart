@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../../domain/usecases/add_to_history.dart';
@@ -10,15 +11,29 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
   final GetHistory getHistory;
   final AddToHistory addToHistory;
   final ClearHistory clearHistory;
+  final Stream<String?> userStream;
+  StreamSubscription<String?>? _userSub;
 
   HistoryBloc({
     required this.getHistory,
     required this.addToHistory,
     required this.clearHistory,
+    required this.userStream,
   }) : super(const HistoryInitial()) {
     on<LoadHistory>(_onLoad);
     on<AddMovieToHistory>(_onAdd);
     on<ClearAllHistory>(_onClear);
+    on<ClearHistoryState>((event, emit) => emit(const HistoryInitial()));
+
+    _userSub = userStream.listen((uid) {
+      add(uid == null ? const ClearHistoryState() : const LoadHistory());
+    });
+  }
+
+  @override
+  Future<void> close() {
+    _userSub?.cancel();
+    return super.close();
   }
 
   Future<void> _onLoad(LoadHistory event, Emitter<HistoryState> emit) async {

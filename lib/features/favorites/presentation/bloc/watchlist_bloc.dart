@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../../domain/usecases/add_to_watchlist.dart';
@@ -10,15 +11,29 @@ class WatchlistBloc extends Bloc<WatchlistEvent, WatchlistState> {
   final GetWatchlist getWatchlist;
   final AddToWatchlist addToWatchlist;
   final RemoveFromWatchlist removeFromWatchlist;
+  final Stream<String?> userStream;
+  StreamSubscription<String?>? _userSub;
 
   WatchlistBloc({
     required this.getWatchlist,
     required this.addToWatchlist,
     required this.removeFromWatchlist,
+    required this.userStream,
   }) : super(const WatchlistInitial()) {
     on<LoadWatchlist>(_onLoad);
     on<AddMovieToWatchlist>(_onAdd);
     on<RemoveMovieFromWatchlist>(_onRemove);
+    on<ClearWatchlist>((event, emit) => emit(const WatchlistInitial()));
+
+    _userSub = userStream.listen((uid) {
+      add(uid == null ? const ClearWatchlist() : const LoadWatchlist());
+    });
+  }
+
+  @override
+  Future<void> close() {
+    _userSub?.cancel();
+    return super.close();
   }
 
   Future<void> _onLoad(

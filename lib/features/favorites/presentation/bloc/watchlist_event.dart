@@ -12,6 +12,10 @@ class LoadWatchlist extends WatchlistEvent {
   const LoadWatchlist();
 }
 
+class ClearWatchlist extends WatchlistEvent {
+  const ClearWatchlist();
+}
+
 class AddMovieToWatchlist extends WatchlistEvent {
   final SavedMovieEntity movie;
 
