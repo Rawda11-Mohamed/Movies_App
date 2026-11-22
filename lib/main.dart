@@ -20,7 +20,7 @@ import 'features/auth/domain/usecases/sign_out_usecase.dart';
 import 'features/auth/domain/usecases/sign_up_usecase.dart';
 import 'features/auth/domain/usecases/update_profile_usecase.dart' as auth_uc;
 import 'features/auth/presentation/bloc/auth_bloc.dart';
-
+import 'features/favorites/favorites_providers.dart';
 // Profile Imports
 import 'features/profile/data/datasources/profile_local_data_source.dart';
 import 'features/profile/data/repositories/profile_repository_impl.dart';
@@ -95,8 +95,7 @@ void main() async {
         BlocProvider<AuthBloc>.value(value: authBloc),
         BlocProvider<ProfileBloc>.value(value: profileBloc),
 
-        // TODO: Teammates add their blocs here as separate BlocProvider entries
-      ],
+        ...favoritesProviders(),      ],
       child: MoviesApp(router: router),
     ),
   );
