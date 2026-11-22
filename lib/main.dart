@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'firebase_options.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'core/utils/shared_prefs_helper.dart';
+
+// Auth Imports
 import 'features/auth/data/datasources/auth_remote_data_source.dart';
 import 'features/auth/data/repositories/auth_repository_impl.dart';
 import 'features/auth/domain/usecases/delete_account_usecase.dart';
@@ -15,8 +18,16 @@ import 'features/auth/domain/usecases/sign_in_usecase.dart';
 import 'features/auth/domain/usecases/sign_in_with_google_usecase.dart';
 import 'features/auth/domain/usecases/sign_out_usecase.dart';
 import 'features/auth/domain/usecases/sign_up_usecase.dart';
-import 'features/auth/domain/usecases/update_profile_usecase.dart';
+import 'features/auth/domain/usecases/update_profile_usecase.dart' as auth_uc;
 import 'features/auth/presentation/bloc/auth_bloc.dart';
+
+// Profile Imports
+import 'features/profile/data/datasources/profile_local_data_source.dart';
+import 'features/profile/data/repositories/profile_repository_impl.dart';
+import 'features/profile/domain/usecases/clear_profile_usecase.dart';
+import 'features/profile/domain/usecases/get_profile_usecase.dart';
+import 'features/profile/domain/usecases/update_profile_usecase.dart' as profile_uc;
+import 'features/profile/presentation/bloc/profile_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,7 +35,8 @@ void main() async {
   // Initialize Firebase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  // Initialize SharedPreferences helper
+  // Initialize SharedPreferences
+  final sharedPreferences = await SharedPreferences.getInstance();
   final sharedPrefsHelper = await SharedPrefsHelper.getInstance();
 
   // ── Auth dependencies ──────────────────────────────────────────
@@ -37,7 +49,7 @@ void main() async {
   final signUpUseCase = SignUpUseCase(authRepository);
   final signOutUseCase = SignOutUseCase(authRepository);
   final forgotPasswordUseCase = ForgotPasswordUseCase(authRepository);
-  final updateProfileUseCase = UpdateProfileUseCase(authRepository);
+  final authUpdateProfileUseCase = auth_uc.UpdateProfileUseCase(authRepository);
   final getCurrentUserUseCase = GetCurrentUserUseCase(authRepository);
   final getAuthStateStreamUseCase = GetAuthStateStreamUseCase(authRepository);
   final signInWithGoogleUseCase = SignInWithGoogleUseCase(authRepository);
@@ -48,13 +60,31 @@ void main() async {
     signUpUseCase: signUpUseCase,
     signOutUseCase: signOutUseCase,
     forgotPasswordUseCase: forgotPasswordUseCase,
-    updateProfileUseCase: updateProfileUseCase,
+    updateProfileUseCase: authUpdateProfileUseCase,
     getCurrentUserUseCase: getCurrentUserUseCase,
     getAuthStateStreamUseCase: getAuthStateStreamUseCase,
     signInWithGoogleUseCase: signInWithGoogleUseCase,
     deleteAccountUseCase: deleteAccountUseCase,
     sharedPrefsHelper: sharedPrefsHelper,
   )..add(const AppStarted());
+
+  // ── Profile dependencies ───────────────────────────────────────
+  final profileLocalDataSource = ProfileLocalDataSourceImpl(
+    sharedPreferences: sharedPreferences,
+  );
+  final profileRepository = ProfileRepositoryImpl(
+    localDataSource: profileLocalDataSource,
+  );
+
+  final getProfileUseCase = GetProfileUseCase(profileRepository);
+  final profileUpdateUseCase = profile_uc.UpdateProfileUseCase(profileRepository);
+  final clearProfileUseCase = ClearProfileUseCase(profileRepository);
+
+  final profileBloc = ProfileBloc(
+    getProfileUseCase: getProfileUseCase,
+    updateProfileUseCase: profileUpdateUseCase,
+    clearProfileUseCase: clearProfileUseCase,
+  );
 
   // ── Router ─────────────────────────────────────────────────────
   final router = AppRouter.createRouter(authBloc, sharedPrefsHelper);
@@ -63,6 +93,7 @@ void main() async {
     MultiBlocProvider(
       providers: [
         BlocProvider<AuthBloc>.value(value: authBloc),
+        BlocProvider<ProfileBloc>.value(value: profileBloc),
 
         // TODO: Teammates add their blocs here as separate BlocProvider entries
       ],
