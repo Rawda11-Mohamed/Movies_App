@@ -19,5 +19,8 @@ class AppColors {
   static const Color shimmer = Color(0xFF2A2A2A);
   static const Color shimmerHighlight = Color(0xFF3A3A3A);
   static const Color googleRed = Color(0xFFDB4437);
+  static const Color ratingBoxBgColor = Color(0xFF121312);
   static const Color transparent = Colors.transparent;
+   static const Color textColorHome = Color(0xFFF6BD00);
+
 }

@@ -7,8 +7,15 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final GetMoviesUseCase getMoviesUseCase;
 
   static const int _carouselLimit = 10;
-  static const int _actionLimit = 20;
-  static const String _actionGenre = 'Action';
+  static const int _genreLimit = 20;
+
+  static const List<String> homeGenres = [
+    'Action',
+    'Comedy',
+    'Drama',
+    'Animation',
+    'Horror',
+  ];
 
   HomeBloc(this.getMoviesUseCase) : super(const HomeState()) {
     on<LoadMoviesEvent>(_onLoadMovies);
@@ -18,10 +25,16 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     LoadMoviesEvent event,
     Emitter<HomeState> emit,
   ) async {
-  
-    emit(const HomeState());
+    emit(
+      HomeState(
+        sections: homeGenres.map((g) => GenreSectionState(genre: g)).toList(),
+      ),
+    );
 
-    await Future.wait([_loadCarousel(emit), _loadAction(emit)]);
+    await Future.wait([
+      _loadCarousel(emit),
+      for (var i = 0; i < homeGenres.length; i++) _loadGenre(i, emit),
+    ]);
   }
 
   Future<void> _loadCarousel(Emitter<HomeState> emit) async {
@@ -42,21 +55,38 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     }
   }
 
-  Future<void> _loadAction(Emitter<HomeState> emit) async {
+  Future<void> _loadGenre(int index, Emitter<HomeState> emit) async {
+    final genre = homeGenres[index];
     try {
       final movies = await getMoviesUseCase(
         page: 1,
-        limit: _actionLimit,
-        genre: _actionGenre,
+        limit: _genreLimit,
+        genre: genre,
       );
-      emit(state.copyWith(isActionLoading: false, actionMovies: movies));
+      _updateSection(
+        index,
+        emit,
+        (s) => s.copyWith(isLoading: false, movies: movies),
+      );
     } catch (e) {
-      emit(
-        state.copyWith(
-          isActionLoading: false,
-          actionError: 'Failed to load movies: $e',
+      _updateSection(
+        index,
+        emit,
+        (s) => s.copyWith(
+          isLoading: false,
+          error: 'Failed to load $genre movies: $e',
         ),
       );
     }
+  }
+
+  void _updateSection(
+    int index,
+    Emitter<HomeState> emit,
+    GenreSectionState Function(GenreSectionState) update,
+  ) {
+    final sections = [...state.sections];
+    sections[index] = update(sections[index]);
+    emit(state.copyWith(sections: sections));
   }
 }

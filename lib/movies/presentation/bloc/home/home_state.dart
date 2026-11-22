@@ -1,39 +1,61 @@
 import 'package:equatable/equatable.dart';
 import '../../../domain/entities/movie_entity.dart';
 
+class GenreSectionState extends Equatable {
+  final String genre;
+  final bool isLoading;
+  final List<MovieEntity> movies;
+  final String error;
+
+  const GenreSectionState({
+    required this.genre,
+    this.isLoading = true,
+    this.movies = const [],
+    this.error = '',
+  });
+
+  GenreSectionState copyWith({
+    bool? isLoading,
+    List<MovieEntity>? movies,
+    String? error,
+  }) {
+    return GenreSectionState(
+      genre: genre,
+      isLoading: isLoading ?? this.isLoading,
+      movies: movies ?? this.movies,
+      error: error ?? this.error,
+    );
+  }
+
+  @override
+  List<Object?> get props => [genre, isLoading, movies, error];
+}
+
 class HomeState extends Equatable {
   final bool isCarouselLoading;
   final List<MovieEntity> carouselMovies;
   final String carouselError;
 
-  final bool isActionLoading;
-  final List<MovieEntity> actionMovies;
-  final String actionError;
+  final List<GenreSectionState> sections;
 
   const HomeState({
     this.isCarouselLoading = true,
     this.carouselMovies = const [],
     this.carouselError = '',
-    this.isActionLoading = true,
-    this.actionMovies = const [],
-    this.actionError = '',
+    this.sections = const [],
   });
 
   HomeState copyWith({
     bool? isCarouselLoading,
     List<MovieEntity>? carouselMovies,
     String? carouselError,
-    bool? isActionLoading,
-    List<MovieEntity>? actionMovies,
-    String? actionError,
+    List<GenreSectionState>? sections,
   }) {
     return HomeState(
       isCarouselLoading: isCarouselLoading ?? this.isCarouselLoading,
       carouselMovies: carouselMovies ?? this.carouselMovies,
       carouselError: carouselError ?? this.carouselError,
-      isActionLoading: isActionLoading ?? this.isActionLoading,
-      actionMovies: actionMovies ?? this.actionMovies,
-      actionError: actionError ?? this.actionError,
+      sections: sections ?? this.sections,
     );
   }
 
@@ -42,8 +64,6 @@ class HomeState extends Equatable {
         isCarouselLoading,
         carouselMovies,
         carouselError,
-        isActionLoading,
-        actionMovies,
-        actionError,
+        sections,
       ];
 }
