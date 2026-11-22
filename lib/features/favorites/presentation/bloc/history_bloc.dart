@@ -38,17 +38,37 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
 
   Future<void> _onLoad(LoadHistory event, Emitter<HistoryState> emit) async {
     emit(const HistoryLoading());
-    await _refresh(emit);
+    final result = await getHistory(const NoParams());
+    result.fold(
+      (failure) => emit(HistoryError(failure.message)),
+      (movies) => emit(HistoryLoaded(movies)),
+    );
   }
 
+  /// تسجيل المشاهدة عملية خلفية: لو فشلت ما نعرضش error في تاب الـ History.
+  /// ولو نجحت بنحدّث القائمة محلياً (الفيلم يطلع فوق من غير تكرار)
+  /// بدل ما نعمل fetch للقائمة كلها في كل مرة.
   Future<void> _onAdd(
     AddMovieToHistory event,
     Emitter<HistoryState> emit,
   ) async {
     final result = await addToHistory(event.movie);
-    await result.fold(
-      (failure) async => emit(HistoryError(failure.message)),
-      (_) => _refresh(emit),
+    result.fold(
+      (_) {},
+      (_) {
+        final current = state;
+        if (current is HistoryLoaded) {
+          emit(
+            HistoryLoaded([
+              event.movie,
+              ...current.movies.where((m) => m.movieId != event.movie.movieId),
+            ]),
+          );
+        } else {
+          // القائمة لسه ما اتحمّلتش، فنحمّلها كاملة بدل ما نعرض فيلم واحد بس.
+          add(const LoadHistory());
+        }
+      },
     );
   }
 
@@ -57,17 +77,9 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
     Emitter<HistoryState> emit,
   ) async {
     final result = await clearHistory(const NoParams());
-    await result.fold(
-      (failure) async => emit(HistoryError(failure.message)),
-      (_) => _refresh(emit),
-    );
-  }
-
-  Future<void> _refresh(Emitter<HistoryState> emit) async {
-    final result = await getHistory(const NoParams());
     result.fold(
       (failure) => emit(HistoryError(failure.message)),
-      (movies) => emit(HistoryLoaded(movies)),
+      (_) => emit(const HistoryLoaded([])),
     );
   }
 }
