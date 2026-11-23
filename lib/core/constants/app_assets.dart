@@ -10,5 +10,6 @@ static const String _iconsPath = 'assets/icons';
   static const String onboarding4 = '$_imagesPath/onboarding_4.png';
   static const String onboarding5 = '$_imagesPath/onboarding_5.png';
   static const String homeCaroselSliderBg = '$_imagesPath/home_bg.png';
+   static const String emptySearchBg = '$_imagesPath/empty_search.png';
   static const String starIcon = '$_iconsPath/star_icon.svg';
 }

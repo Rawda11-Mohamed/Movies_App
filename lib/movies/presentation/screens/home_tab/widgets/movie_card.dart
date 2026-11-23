@@ -2,8 +2,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:movies_app/core/constants/app_assets.dart';
 import 'package:movies_app/core/constants/app_colors.dart';
 import 'package:movies_app/movies/domain/entities/movie_entity.dart';
 
@@ -35,6 +33,7 @@ class MovieCard extends StatelessWidget {
             children: [
               CachedNetworkImage(
                 imageUrl: movie.mediumCoverImage,
+                
                 width: width,
                 height: height,
                 fit: BoxFit.cover,

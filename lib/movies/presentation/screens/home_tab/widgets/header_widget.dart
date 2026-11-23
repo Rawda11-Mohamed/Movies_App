@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:movies_app/core/constants/app_assets.dart';
 import 'package:movies_app/movies/domain/entities/movie_entity.dart';
 import 'package:movies_app/movies/presentation/screens/home_tab/widgets/movie_card.dart';
@@ -87,7 +88,7 @@ class _HomeHeaderState extends State<HomeHeader> {
                       width: 200.w,
                       height: 300.h,
                       onTap: () {
-                        // TODO : Navigate to movie details screen
+                        context.push('/movie/${movie.id}');
                       },
                     ),
                   ),

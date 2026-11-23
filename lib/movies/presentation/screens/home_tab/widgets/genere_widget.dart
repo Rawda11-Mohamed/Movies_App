@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:movies_app/core/constants/app_colors.dart';
@@ -64,7 +66,8 @@ class GenreSection extends StatelessWidget {
                 width: 140.w,
                 height: 220.h,
                 onTap: () {
-                  // هنربطها بشاشة Movie Details بعدين
+                  log('1: GenreSection See More tapped');
+                  onSeeMore?.call();
                 },
               );
             },

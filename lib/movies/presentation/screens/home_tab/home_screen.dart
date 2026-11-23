@@ -8,7 +8,9 @@ import 'package:movies_app/movies/presentation/bloc/home/home_event.dart';
 import 'package:movies_app/movies/presentation/bloc/home/home_state.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+  final void Function(String genre) onSeeMore;
+
+  const HomeScreen({super.key, required this.onSeeMore});
 
   @override
   Widget build(BuildContext context) {
@@ -97,9 +99,7 @@ class HomeScreen extends StatelessWidget {
     return GenreSection(
       title: section.genre,
       movies: section.movies,
-      onSeeMore: () {
-        // TODO: open Browse with section.genre selected
-      },
+      onSeeMore: () => onSeeMore(section.genre),
     );
   }
 }
