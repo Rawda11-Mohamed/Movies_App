@@ -17,32 +17,30 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int currentTabIndex = 0;
-GenereEnum? _browseGenre;
-  List<Widget> tabs() =>  [
+  GenereEnum? _browseGenre;
+  List<Widget> tabs() => [
     HomeScreen(onSeeMore: _openBrowseWithGenre),
     SearchScreen(),
     BrowseScreen(
-  selectedGenre: _browseGenre,
-  onGenreSelected: _onGenreSelected,
-),
-    Placeholder()
-    
+      selectedGenre: _browseGenre,
+      onGenreSelected: _onGenreSelected,
+    ),
+    Placeholder(),
   ];
-void _onGenreSelected(GenereEnum? genre) {
-  setState(() => _browseGenre = genre);
-  context.read<BrowseBloc>().add(SelectGenreEvent(genre?.apiName));
-}
-void _openBrowseWithGenre(String genreName) {
-  _onGenreSelected(GenereEnum.fromApiName(genreName));
-  setState(() => currentTabIndex = 2);
-}
+  void _onGenreSelected(GenereEnum? genre) {
+    setState(() => _browseGenre = genre);
+    context.read<BrowseBloc>().add(SelectGenreEvent(genre?.apiName));
+  }
+
+  void _openBrowseWithGenre(String genreName) {
+    _onGenreSelected(GenereEnum.fromApiName(genreName));
+    setState(() => currentTabIndex = 2);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: currentTabIndex,
-        children: tabs(),
-      ),
+      body: IndexedStack(index: currentTabIndex, children: tabs()),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: currentTabIndex,
         onTap: (value) {

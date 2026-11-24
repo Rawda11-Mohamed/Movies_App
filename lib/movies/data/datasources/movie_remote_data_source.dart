@@ -1,5 +1,5 @@
+import 'package:movies_app/movies/data/models/movie_details_model.dart';
 import 'package:movies_app/movies/data/models/movie_list_model.dart';
-import 'package:movies_app/movies/data/models/movie_model.dart';
 
 abstract class MovieRemoteDataSource {
   Future<MovieListModel> getMovies({
@@ -15,7 +15,7 @@ abstract class MovieRemoteDataSource {
     required String query,
   });
 
-  Future<MovieModel> getMovieDetails({required int id});
+  Future<MovieDetailsModel> getMovieDetails({required int id});
 
   Future<MovieListModel> getSimilarMovies({required int id});
 }

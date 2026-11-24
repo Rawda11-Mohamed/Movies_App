@@ -1,11 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
 import 'package:movies_app/core/constants/app_assets.dart';
 import 'package:movies_app/movies/domain/entities/movie_entity.dart';
 import 'package:movies_app/movies/presentation/screens/home_tab/widgets/movie_card.dart';
-
+import 'package:movies_app/movies/presentation/screens/movie_details/open_movie_details.dart';
 
 class HomeHeader extends StatefulWidget {
   final List<MovieEntity> movies;
@@ -55,7 +54,6 @@ class _HomeHeaderState extends State<HomeHeader> {
             ),
           ),
 
-          
           Positioned.fill(
             child: IgnorePointer(
               child: Image.asset(
@@ -65,7 +63,6 @@ class _HomeHeaderState extends State<HomeHeader> {
             ),
           ),
 
-          
           Positioned(
             top: 100.h,
             left: 0,
@@ -87,9 +84,7 @@ class _HomeHeaderState extends State<HomeHeader> {
                       movie: movie,
                       width: 200.w,
                       height: 300.h,
-                      onTap: () {
-                        context.push('/movie/${movie.id}');
-                      },
+                      onTap: () => openMovieDetails(context, movie.id),
                     ),
                   ),
                 );

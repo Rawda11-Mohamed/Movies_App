@@ -6,7 +6,7 @@ class GetMovieDetailsUseCase {
 
   GetMovieDetailsUseCase(this.repo);
 
-  Future<MovieEntity> call({required int id}) {
+  Future<MovieDetailsEntity> call({required int id}) {
     return repo.getMovieDetails(id: id);
   }
 }

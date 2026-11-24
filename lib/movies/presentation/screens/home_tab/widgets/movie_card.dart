@@ -33,7 +33,7 @@ class MovieCard extends StatelessWidget {
             children: [
               CachedNetworkImage(
                 imageUrl: movie.mediumCoverImage,
-                
+
                 width: width,
                 height: height,
                 fit: BoxFit.cover,
@@ -54,7 +54,7 @@ class MovieCard extends StatelessWidget {
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 3.h),
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8.0.r),
+                    borderRadius: BorderRadius.circular(8.r),
                     color: AppColors.ratingBoxBgColor.withValues(alpha: 0.71),
                   ),
                   child: Row(
@@ -66,7 +66,7 @@ class MovieCard extends StatelessWidget {
                         style: Theme.of(context).textTheme.titleMedium!
                             .copyWith(fontWeight: FontWeight.w400),
                       ),
-                     Icon(Icons.star, color: AppColors.primary, size: 12.r),
+                      Icon(Icons.star, color: AppColors.primary, size: 12.r),
                     ],
                   ),
                 ),

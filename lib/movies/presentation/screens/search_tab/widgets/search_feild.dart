@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:movies_app/core/constants/app_colors.dart';
 
 class SearchField extends StatelessWidget {
   const SearchField({
@@ -23,8 +24,8 @@ class SearchField extends StatelessWidget {
         hintStyle: const TextStyle(color: Colors.white54),
         prefixIcon: const Icon(Icons.search, color: Colors.white),
         filled: true,
-        // TODO: استبدلي اللون ده بـ AppColors
-        fillColor: const Color(0xFF282A28),
+
+        fillColor: AppColors.inputFill,
         contentPadding: EdgeInsets.symmetric(vertical: 12.h),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16.r),

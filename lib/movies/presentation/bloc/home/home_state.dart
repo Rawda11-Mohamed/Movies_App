@@ -61,9 +61,9 @@ class HomeState extends Equatable {
 
   @override
   List<Object?> get props => [
-        isCarouselLoading,
-        carouselMovies,
-        carouselError,
-        sections,
-      ];
+    isCarouselLoading,
+    carouselMovies,
+    carouselError,
+    sections,
+  ];
 }

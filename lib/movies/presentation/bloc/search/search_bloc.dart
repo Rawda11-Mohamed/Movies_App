@@ -21,10 +21,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
   static const int _limit = 20;
 
   SearchBloc(this.searchMoviesUseCase) : super(const SearchInitial()) {
-    on<SearchQueryChanged>(
-      _onQueryChanged,
-      transformer: debounceRestartable(),
-    );
+    on<SearchQueryChanged>(_onQueryChanged, transformer: debounceRestartable());
   }
 
   Future<void> _onQueryChanged(

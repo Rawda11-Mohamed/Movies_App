@@ -10,7 +10,6 @@ import 'package:movies_app/movies/presentation/screens/search_tab/widgets/search
 import 'package:movies_app/movies/presentation/screens/search_tab/widgets/search_message.dart';
 import 'package:movies_app/movies/presentation/screens/search_tab/widgets/search_result_grid.dart';
 
-
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
 
@@ -28,7 +27,6 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   void _onChanged(String value) {
-    
     context.read<SearchBloc>().add(SearchQueryChanged(value));
   }
 
@@ -60,7 +58,11 @@ class _SearchScreenState extends State<SearchScreen> {
                       onRetry: () => _onChanged(_controller.text),
                     );
                   }
-                  return  Image.asset(AppAssets.emptySearchBg, width: 200.w, height: 200.h);
+                  return Image.asset(
+                    AppAssets.emptySearchBg,
+                    width: 200.w,
+                    height: 200.h,
+                  );
                 },
               ),
             ),

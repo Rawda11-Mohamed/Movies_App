@@ -9,12 +9,11 @@ enum GenereEnum {
 
   const GenereEnum(this.apiName);
 
- 
   final String apiName;
   static GenereEnum? fromApiName(String name) {
-  for (final genre in values) {
-    if (genre.apiName == name) return genre;
+    for (final genre in values) {
+      if (genre.apiName == name) return genre;
+    }
+    return null;
   }
-  return null;
-}
 }

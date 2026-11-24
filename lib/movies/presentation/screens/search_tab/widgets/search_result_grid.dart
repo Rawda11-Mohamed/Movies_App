@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
 import 'package:movies_app/movies/presentation/screens/home_tab/widgets/movie_card.dart';
+import 'package:movies_app/movies/presentation/screens/movie_details/open_movie_details.dart';
 
 class SearchResultsGrid extends StatelessWidget {
   const SearchResultsGrid({super.key, required this.movies});
 
-  
   final List<dynamic> movies;
 
   @override
@@ -30,8 +29,7 @@ class SearchResultsGrid extends StatelessWidget {
           movie: movie,
           width: cardWidth,
           height: cardHeight,
-         
-          onTap: () => context.push('/movie/${movie.id}'),
+          onTap: () => openMovieDetails(context, movie.id),
         );
       },
     );

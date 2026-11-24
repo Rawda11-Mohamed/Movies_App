@@ -29,10 +29,7 @@ class BrowseBloc extends Bloc<BrowseEvent, BrowseState> {
     await _loadFirstPage(event.genre, emit);
   }
 
-  Future<void> _loadFirstPage(
-    String? genre,
-    Emitter<BrowseState> emit,
-  ) async {
+  Future<void> _loadFirstPage(String? genre, Emitter<BrowseState> emit) async {
     _currentPage = 1;
     emit(const BrowseLoading());
     try {
@@ -41,11 +38,13 @@ class BrowseBloc extends Bloc<BrowseEvent, BrowseState> {
         limit: _limit,
         genre: genre,
       );
-      emit(BrowseLoaded(
-        movies: movies,
-        selectedGenre: genre,
-        hasReachedMax: movies.length < _limit,
-      ));
+      emit(
+        BrowseLoaded(
+          movies: movies,
+          selectedGenre: genre,
+          hasReachedMax: movies.length < _limit,
+        ),
+      );
     } catch (e) {
       emit(BrowseError('Failed to load movies: $e'));
     }
@@ -71,11 +70,13 @@ class BrowseBloc extends Bloc<BrowseEvent, BrowseState> {
         genre: current.selectedGenre,
       );
       _currentPage = nextPage;
-      emit(current.copyWith(
-        movies: [...current.movies, ...newMovies],
-        hasReachedMax: newMovies.length < _limit,
-        isLoadingMore: false,
-      ));
+      emit(
+        current.copyWith(
+          movies: [...current.movies, ...newMovies],
+          hasReachedMax: newMovies.length < _limit,
+          isLoadingMore: false,
+        ),
+      );
     } catch (e) {
       emit(current.copyWith(isLoadingMore: false));
     }

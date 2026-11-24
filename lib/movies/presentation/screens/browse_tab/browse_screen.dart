@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
 import 'package:movies_app/core/constants/app_colors.dart';
 import 'package:movies_app/core/enums/genere_enum.dart';
 
@@ -9,16 +8,17 @@ import 'package:movies_app/movies/presentation/bloc/browse/browse_bloc.dart';
 import 'package:movies_app/movies/presentation/bloc/browse/browse_event.dart';
 import 'package:movies_app/movies/presentation/bloc/browse/browse_state.dart';
 import 'package:movies_app/movies/presentation/screens/home_tab/widgets/movie_card.dart';
+import 'package:movies_app/movies/presentation/screens/movie_details/open_movie_details.dart';
 
 class BrowseScreen extends StatefulWidget {
- final GenereEnum? selectedGenre;
-final void Function(GenereEnum?) onGenreSelected;
+  final GenereEnum? selectedGenre;
+  final void Function(GenereEnum?) onGenreSelected;
 
-const BrowseScreen({
-  super.key,
-  required this.selectedGenre,
-  required this.onGenreSelected,
-});
+  const BrowseScreen({
+    super.key,
+    required this.selectedGenre,
+    required this.onGenreSelected,
+  });
 
   @override
   State<BrowseScreen> createState() => _BrowseScreenState();
@@ -26,7 +26,6 @@ const BrowseScreen({
 
 class _BrowseScreenState extends State<BrowseScreen> {
   final ScrollController _scrollController = ScrollController();
-  
 
   @override
   void initState() {
@@ -51,9 +50,9 @@ class _BrowseScreenState extends State<BrowseScreen> {
     }
   }
 
- void _onGenreTap(GenereEnum genre) {
-  widget.onGenreSelected(widget.selectedGenre == genre ? null : genre);
-}
+  void _onGenreTap(GenereEnum genre) {
+    widget.onGenreSelected(widget.selectedGenre == genre ? null : genre);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -147,9 +146,8 @@ class _BrowseScreenState extends State<BrowseScreen> {
                 movie: movie,
                 width: cardWidth,
                 height: cardHeight,
-                onTap: () {
-                  context.push('/movie/${movie.id}');
-                },
+
+                onTap: () => openMovieDetails(context, movie.id),
               );
             }, childCount: state.movies.length),
           ),

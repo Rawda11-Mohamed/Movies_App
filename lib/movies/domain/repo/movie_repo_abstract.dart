@@ -12,6 +12,6 @@ abstract class MovieRepoAbstract {
     required int limit,
     required String query,
   });
-  Future<MovieEntity> getMovieDetails({required int id});
+  Future<MovieDetailsEntity> getMovieDetails({required int id});
   Future<List<MovieEntity>> getSimilarMovies({required int id});
 }

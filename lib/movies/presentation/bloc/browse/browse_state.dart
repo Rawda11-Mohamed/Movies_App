@@ -44,8 +44,12 @@ class BrowseLoaded extends BrowseState {
   }
 
   @override
-  List<Object?> get props =>
-      [movies, selectedGenre, hasReachedMax, isLoadingMore];
+  List<Object?> get props => [
+    movies,
+    selectedGenre,
+    hasReachedMax,
+    isLoadingMore,
+  ];
 }
 
 class BrowseError extends BrowseState {

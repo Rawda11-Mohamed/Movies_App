@@ -1,10 +1,9 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:movies_app/core/constants/app_colors.dart';
 import 'package:movies_app/movies/domain/entities/movie_entity.dart';
 import 'package:movies_app/movies/presentation/screens/home_tab/widgets/movie_card.dart';
+import 'package:movies_app/movies/presentation/screens/movie_details/open_movie_details.dart';
 
 class GenreSection extends StatelessWidget {
   final String title;
@@ -65,10 +64,7 @@ class GenreSection extends StatelessWidget {
                 movie: movies[index],
                 width: 140.w,
                 height: 220.h,
-                onTap: () {
-                  log('1: GenreSection See More tapped');
-                  onSeeMore?.call();
-                },
+                onTap: () => openMovieDetails(context, movies[index].id),
               );
             },
           ),

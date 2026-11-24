@@ -7,7 +7,7 @@ class MovieRepoImplement implements MovieRepoAbstract {
 
   MovieRepoImplement(this.remoteDataSource);
 
-   @override
+  @override
   Future<List<MovieEntity>> getMovies({
     required int page,
     required int limit,
@@ -24,7 +24,7 @@ class MovieRepoImplement implements MovieRepoAbstract {
   }
 
   @override
-  Future<MovieEntity> getMovieDetails({required int id}) async {
+  Future<MovieDetailsEntity> getMovieDetails({required int id}) async {
     final response = await remoteDataSource.getMovieDetails(id: id);
     return response.toEntity();
   }
