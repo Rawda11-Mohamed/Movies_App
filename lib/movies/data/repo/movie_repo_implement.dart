@@ -1,11 +1,18 @@
+import 'package:movies_app/movies/data/datasources/movie_local_data_source.dart';
 import 'package:movies_app/movies/data/datasources/movie_remote_data_source.dart';
+import 'package:movies_app/movies/data/models/movie_list_model.dart';
 import 'package:movies_app/movies/domain/entities/movie_entity.dart';
 import 'package:movies_app/movies/domain/repo/movie_repo_abstract.dart';
 
 class MovieRepoImplement implements MovieRepoAbstract {
-  final MovieRemoteDataSource remoteDataSource;
+  MovieRepoImplement(this.remoteDataSource, this.localDataSource);
 
-  MovieRepoImplement(this.remoteDataSource);
+  final MovieRemoteDataSource remoteDataSource;
+  final MovieLocalDataSource localDataSource;
+
+  List<MovieEntity> _toEntities(MovieListModel response) {
+    return response.data?.movies?.map((m) => m.toEntity()).toList() ?? [];
+  }
 
   @override
   Future<List<MovieEntity>> getMovies({
@@ -14,13 +21,24 @@ class MovieRepoImplement implements MovieRepoAbstract {
     String? genre,
     String? sortBy,
   }) async {
-    final response = await remoteDataSource.getMovies(
-      page: page,
-      limit: limit,
-      genre: genre,
-      sortBy: sortBy,
-    );
-    return response.data?.movies?.map((m) => m.toEntity()).toList() ?? [];
+    final key = 'movies_p${page}_l${limit}_g${genre ?? 'all'}_s${sortBy ?? 'default'}';
+
+    final MovieListModel response;
+    try {
+      response = await remoteDataSource.getMovies(
+        page: page,
+        limit: limit,
+        genre: genre,
+        sortBy: sortBy,
+      );
+    } catch (_) {
+      final cached = localDataSource.getMovieList(key);
+      if (cached == null) rethrow;
+      return _toEntities(cached);
+    }
+
+    await localDataSource.saveMovieList(key, response);
+    return _toEntities(response);
   }
 
   @override
@@ -32,7 +50,7 @@ class MovieRepoImplement implements MovieRepoAbstract {
   @override
   Future<List<MovieEntity>> getSimilarMovies({required int id}) async {
     final response = await remoteDataSource.getSimilarMovies(id: id);
-    return response.data?.movies?.map((e) => e.toEntity()).toList() ?? [];
+    return _toEntities(response);
   }
 
   @override
@@ -46,6 +64,6 @@ class MovieRepoImplement implements MovieRepoAbstract {
       limit: limit,
       query: query,
     );
-    return response.data?.movies?.map((e) => e.toEntity()).toList() ?? [];
+    return _toEntities(response);
   }
 }
