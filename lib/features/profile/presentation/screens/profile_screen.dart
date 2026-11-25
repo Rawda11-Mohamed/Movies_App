@@ -14,6 +14,12 @@ import '../../domain/entities/profile_entity.dart';
 import '../bloc/profile_bloc.dart';
 import '../bloc/profile_event.dart';
 import '../bloc/profile_state.dart';
+import '../../../favorites/presentation/bloc/history_bloc.dart';
+import '../../../favorites/presentation/bloc/history_state.dart';
+import '../../../favorites/presentation/bloc/watchlist_bloc.dart';
+import '../../../favorites/presentation/bloc/watchlist_state.dart';
+import '../../../favorites/presentation/widgets/history_tab_view.dart';
+import '../../../favorites/presentation/widgets/watchlist_tab_view.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -113,9 +119,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 children: [
                   const SizedBox(height: 24),
                   _buildProfileHeader(profile),
-                  const SizedBox(height: 24),
+                   
                   _buildActionButtons(context),
-                  const SizedBox(height: 20),
+                 
                   _buildTabSection(profile),
                 ],
               ),
@@ -127,49 +133,56 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildProfileHeader(ProfileEntity profile) {
-    return Column(
-      children: [
-        CircleAvatar(
-          radius: 54,
-          backgroundColor: AppColors.surfaceVariant,
-          backgroundImage: _resolveAvatar(profile.avatarKey),
-        ),
-        const SizedBox(height: 14),
-        Text(
-          profile.displayName.isNotEmpty ? profile.displayName : 'John Safwat',
-          style: const TextStyle(
-            color: AppColors.textPrimary,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          profile.email,
-          style: const TextStyle(
-            color: AppColors.textSecondary,
-            fontSize: 14,
-          ),
-        ),
-        const SizedBox(height: 20),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 50),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 30),
+      child: Row(
+        children: [
+          Column(
             children: [
-              _buildStatItem('${profile.wishlistCount}', AppStrings.wishList),
-              Container(
-                height: 36,
-                width: 1,
-                color: AppColors.divider,
+              CircleAvatar(
+                radius: 55,
+                backgroundColor: AppColors.surfaceVariant,
+                backgroundImage: _resolveAvatar(profile.avatarKey),
               ),
-              _buildStatItem('${profile.historyCount}', AppStrings.history),
+              const SizedBox(height: 12),
+              Text(
+                profile.displayName.isNotEmpty ? profile.displayName : 'John Safwat',
+                style: const TextStyle(
+                  color: AppColors.textPrimary,
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              
+              const SizedBox(height: 20),
+             
             ],
+          ),Spacer(),
+           Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                BlocBuilder<WatchlistBloc, WatchlistState>(
+                  builder: (_, s) => _buildStatItem(
+                    '${s.movies.length}',
+                    AppStrings.wishList,
+                  ),
+                ),
+                const SizedBox(width: 50),
+                BlocBuilder<HistoryBloc, HistoryState>(
+                  builder: (_, s) => _buildStatItem(
+                    '${s is HistoryLoaded ? s.movies.length : 0}',
+                    AppStrings.history,
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
-  }
+  }///////////////////////////////////////////
 
   Widget _buildStatItem(String count, String label) {
     return Column(
@@ -179,7 +192,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           count,
           style: const TextStyle(
             color: AppColors.textPrimary,
-            fontSize: 22,
+            fontSize: 26,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -187,8 +200,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         Text(
           label,
           style: const TextStyle(
-            color: AppColors.textSecondary,
-            fontSize: 14,
+            color: AppColors.textPrimary,
+            fontSize: 16,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -215,9 +228,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: CustomOutlinedButton(
               title: 'Exit',
               height: 48,
-              borderColor: AppColors.error,
-              textColor: AppColors.error,
-              icon: const Icon(Icons.exit_to_app, color: AppColors.error, size: 20),
+              backgroundColor: Colors.red,
+              borderColor:Colors.red,
+              textColor: Colors.white,
+              icon: const Icon(Icons.exit_to_app, color: Colors.white, size: 20),
               onPressed: () => _confirmLogout(context),
             ),
           ),
@@ -270,56 +284,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
               indicatorColor: AppColors.primary,
               indicatorWeight: 3,
               indicatorSize: TabBarIndicatorSize.tab,
-              labelColor: AppColors.primary,
-              unselectedLabelColor: AppColors.textSecondary,
-              tabs: [
+              labelColor:  AppColors.textPrimary, 
+ 
+               tabs: [
                 Tab(
-                  icon: Icon(Icons.bookmark_outline),
+                  icon: Icon(Icons.menu,color: AppColors.primary,),
                   text: AppStrings.wishList,
+                  
                 ),
                 Tab(
-                  icon: Icon(Icons.folder_open_outlined),
+                  icon: Icon(Icons.folder,color: AppColors.primary,),
                   text: AppStrings.history,
                 ),
               ],
             ),
           ),
-          SizedBox(
+          const SizedBox(
             height: 320,
             child: TabBarView(
               children: [
-                _buildEmptyTabState(
-                  icon: Icons.movie_outlined,
-                  message: 'No Movies in Wish List',
-                ),
-                _buildEmptyTabState(
-                  icon: Icons.folder_open_outlined,
-                  message: 'No Watch History Yet',
-                ),
+                WatchlistTabView(),
+                HistoryTabView(),
               ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEmptyTabState({
-    required IconData icon,
-    required String message,
-  }) {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 75, color: AppColors.primary.withValues(alpha: 0.8)),
-          const SizedBox(height: 16),
-          Text(
-            message,
-            style: const TextStyle(
-              color: AppColors.textSecondary,
-              fontSize: 15,
-              fontWeight: FontWeight.w500,
             ),
           ),
         ],
