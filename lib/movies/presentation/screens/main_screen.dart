@@ -1,8 +1,9 @@
-import 'package:flutter/material.dart';
+ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:movies_app/core/constants/app_colors.dart';
 import 'package:movies_app/core/enums/genere_enum.dart';
 import 'package:movies_app/core/storage/app_prefs.dart';
+import 'package:movies_app/features/profile/presentation/screens/profile_screen.dart';
 import 'package:movies_app/movies/presentation/bloc/browse/browse_bloc.dart';
 import 'package:movies_app/movies/presentation/bloc/browse/browse_event.dart';
 import 'package:movies_app/movies/presentation/screens/browse_tab/browse_screen.dart';
@@ -39,7 +40,7 @@ class _MainScreenState extends State<MainScreen> {
       selectedGenre: _browseGenre,
       onGenreSelected: _onGenreSelected,
     ),
-    Placeholder(),
+    const ProfileScreen(),
   ];
 
   void _onGenreSelected(GenereEnum? genre) {
