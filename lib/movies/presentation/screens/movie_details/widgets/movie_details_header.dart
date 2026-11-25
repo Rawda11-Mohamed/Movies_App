@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:movies_app/core/constants/app_colors.dart';
 import 'package:movies_app/movies/domain/entities/movie_entity.dart';
-
 import 'package:movies_app/movies/presentation/screens/movie_details/widgets/common_widgets/movie_vet_images.dart';
 import 'package:movies_app/movies/presentation/screens/movie_details/widgets/open_trailer.dart';
-
+import 'package:movies_app/features/favorites/domain/entities/saved_movie_entity.dart';
+import 'package:movies_app/features/favorites/presentation/widgets/bookmark_button.dart';
 class MovieHeader extends StatelessWidget {
   const MovieHeader({super.key, required this.movie});
 
@@ -14,9 +14,9 @@ class MovieHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Stack(
-      children: [
-        MovieNetImage(url: movie.largeCoverImage, height: 480.h, radius: 0),
-        Positioned.fill(
+    children: [
+     MovieNetImage(url: movie.largeCoverImage, height: 480.h, radius: 0),
+       Positioned.fill(
           child: DecoratedBox(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -44,15 +44,19 @@ class MovieHeader extends StatelessWidget {
                   ),
                   onPressed: () => Navigator.of(context).pop(),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.bookmark_border, color: Colors.white),
-                  // TODO: Watch list
-                  onPressed: () {},
-                ),
+               BookmarkButton(
+  movie: SavedMovieEntity(
+    movieId: movie.id,
+    title: movie.title,
+    posterPath: movie.largeCoverImage,
+    rating: movie.rating,
+    savedAt: DateTime.now(),
+  ),
+),
               ],
-            ),
-          ),
-        ),
+              ),
+              ),
+              ),
         Positioned.fill(
           child: Center(
             child: IconButton(

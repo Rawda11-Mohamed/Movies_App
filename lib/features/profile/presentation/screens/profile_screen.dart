@@ -159,7 +159,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ],
           ),Spacer(),
            Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40),
+            padding: const EdgeInsets.only(left: 30),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -169,7 +169,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     AppStrings.wishList,
                   ),
                 ),
-                const SizedBox(width: 50),
+                const SizedBox(width: 30),
                 BlocBuilder<HistoryBloc, HistoryState>(
                   builder: (_, s) => _buildStatItem(
                     '${s is HistoryLoaded ? s.movies.length : 0}',

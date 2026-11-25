@@ -127,6 +127,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   void _onAvatarPickerModal() {
     showModalBottomSheet(
+      isScrollControlled: true,
       context: context,
       backgroundColor: const Color(0xFF212121),
       shape: const RoundedRectangleBorder(
