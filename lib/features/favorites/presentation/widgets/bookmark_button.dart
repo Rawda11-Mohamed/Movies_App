@@ -22,7 +22,8 @@ class BookmarkButton extends StatelessWidget {
             color: isSaved ? AppColors.primary : AppColors.textPrimary,
           ),
           onPressed: () {
-            final bloc = context.read<WatchlistBloc>();
+ 
+  final bloc = context.read<WatchlistBloc>();
             if (isSaved) {
               bloc.add(RemoveMovieFromWatchlist(movie.movieId));
             } else {

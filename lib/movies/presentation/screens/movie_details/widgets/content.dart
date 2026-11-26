@@ -10,6 +10,10 @@ import 'package:movies_app/movies/presentation/screens/movie_details/widgets/mov
 import 'package:movies_app/movies/presentation/screens/movie_details/widgets/movie_details_header.dart';
 import 'package:movies_app/movies/presentation/screens/movie_details/widgets/movie_similar_section.dart';
 import 'package:movies_app/movies/presentation/screens/movie_details/widgets/open_trailer.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:movies_app/features/favorites/domain/entities/saved_movie_entity.dart';
+import 'package:movies_app/features/favorites/presentation/bloc/history_bloc.dart';
+import 'package:movies_app/features/favorites/presentation/bloc/history_event.dart';
 
 class Content extends StatelessWidget {
   const Content({
@@ -27,6 +31,7 @@ class Content extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+
           MovieHeader(movie: movie),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -45,8 +50,20 @@ class Content extends StatelessWidget {
                       ),
                     ),
 
-                    onPressed: () => openTrailer(context, movie.ytTrailerCode),
-                    child: const Text(
+                    onPressed: () {
+                      context.read<HistoryBloc>().add(
+                            AddMovieToHistory(
+                              SavedMovieEntity(
+                                movieId: movie.id,
+                                title: movie.title,
+                                posterPath: movie.largeCoverImage,
+                                rating: movie.rating,
+                                savedAt: DateTime.now(),
+                              ),
+                            ),
+                          );
+                      openTrailer(context, movie.ytTrailerCode);
+                    },                    child: const Text(
                       'Watch',
                       style: TextStyle(color: Colors.white, fontSize: 18),
                     ),
