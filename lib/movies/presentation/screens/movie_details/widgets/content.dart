@@ -14,6 +14,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:movies_app/features/favorites/domain/entities/saved_movie_entity.dart';
 import 'package:movies_app/features/favorites/presentation/bloc/history_bloc.dart';
 import 'package:movies_app/features/favorites/presentation/bloc/history_event.dart';
+import 'package:movies_app/features/favorites/presentation/widgets/rate_movie_button.dart';
 
 class Content extends StatelessWidget {
   const Content({
@@ -49,7 +50,6 @@ class Content extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12.r),
                       ),
                     ),
-
                     onPressed: () {
                       context.read<HistoryBloc>().add(
                             AddMovieToHistory(
@@ -63,7 +63,8 @@ class Content extends StatelessWidget {
                             ),
                           );
                       openTrailer(context, movie.ytTrailerCode);
-                    },                    child: const Text(
+                    },
+                    child: const Text(
                       'Watch',
                       style: TextStyle(color: Colors.white, fontSize: 18),
                     ),
@@ -81,6 +82,11 @@ class Content extends StatelessWidget {
                     SizedBox(width: 10.w),
                     MovieBadge(icon: Icons.star, value: '${movie.rating}'),
                   ],
+                ),
+                SizedBox(height: 12.h),
+                RateMovieButton(
+                  movieId: movie.id,
+                  movieTitle: movie.title,
                 ),
                 if (movie.screenshots.isNotEmpty) ...[
                   const MovieSectionTitle('Screen Shots'),
